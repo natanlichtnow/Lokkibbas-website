@@ -6,6 +6,8 @@ const rateLimit = require('express-rate-limit');
 const path = require('path');
 const fs = require('fs/promises');
 const crypto = require('crypto');
+const nodemailer = require('nodemailer');
+const { OAuth2Client } = require('google-auth-library');
 
 const app = express();
 const rootDir = __dirname;
@@ -18,6 +20,23 @@ const OWNER_USERNAME = process.env.OWNER_USERNAME || 'roofboi';
 const OWNER_PASSWORD_SALT = process.env.OWNER_PASSWORD_SALT || 'moores-roofboi-salt';
 const OWNER_PASSWORD_HASH = process.env.OWNER_PASSWORD_HASH || '66f3f3d6a178a29384ec769d3ec87fe4e90620ff2c1e9b94425fddfd04c25cb5';
 const TOKEN_SECRET = process.env.TOKEN_SECRET || 'change-this-token-secret-immediately';
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '846303717712-72aiml32ppb278g00m0ipn6rapt1olur.apps.googleusercontent.com';
+const GMAIL_USER = process.env.GMAIL_USER || '';
+const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD || '';
+const CONTACT_TO_EMAIL = process.env.CONTACT_TO_EMAIL || 'mooresexterios@gmail.com';
+
+const googleClient = GOOGLE_CLIENT_ID ? new OAuth2Client(GOOGLE_CLIENT_ID) : null;
+let mailTransporter;
+
+if (GMAIL_USER && GMAIL_APP_PASSWORD) {
+    mailTransporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: GMAIL_USER,
+            pass: GMAIL_APP_PASSWORD
+        }
+    });
+}
 
 let writeQueue = Promise.resolve();
 
@@ -135,7 +154,17 @@ const upload = multer({
 });
 
 app.use(helmet({
-    crossOriginResourcePolicy: { policy: 'cross-origin' }
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+    contentSecurityPolicy: {
+        useDefaults: true,
+        directives: {
+            scriptSrc: ["'self'", 'https://accounts.google.com', 'https://apis.google.com'],
+            frameSrc: ["'self'", 'https://accounts.google.com'],
+            connectSrc: ["'self'", 'https://accounts.google.com'],
+            imgSrc: ["'self'", 'data:', 'https://*.googleusercontent.com'],
+            styleSrc: ["'self'", 'https:', "'unsafe-inline'"]
+        }
+    }
 }));
 app.use(express.json({ limit: '1mb' }));
 app.use('/uploads', express.static(uploadsDir));
@@ -146,6 +175,21 @@ const authLimiter = rateLimit({
     max: 30,
     standardHeaders: true,
     legacyHeaders: false
+});
+
+const contactLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 15,
+    standardHeaders: true,
+    legacyHeaders: false
+});
+
+app.get('/api/public-config', (_req, res) => {
+    return res.json({
+        googleClientId: GOOGLE_CLIENT_ID || null,
+        contactEnabled: Boolean(googleClient && mailTransporter),
+        gmailComposeEnabled: Boolean(googleClient)
+    });
 });
 
 app.post('/api/auth/login', authLimiter, (req, res) => {
@@ -240,6 +284,58 @@ app.post('/api/posts', requireAuth, upload.single('imageFile'), async (req, res)
             return res.status(400).json({ error: error.message });
         }
         return res.status(500).json({ error: 'Failed to create post.' });
+    }
+});
+
+app.post('/api/contact', contactLimiter, async (req, res) => {
+    try {
+        if (!googleClient || !mailTransporter) {
+            return res.status(503).json({ error: 'Contact form is not configured yet.' });
+        }
+
+        const name = typeof req.body.name === 'string' ? req.body.name.trim() : '';
+        const subject = typeof req.body.subject === 'string' ? req.body.subject.trim() : '';
+        const message = typeof req.body.message === 'string' ? req.body.message.trim() : '';
+        const idToken = typeof req.body.idToken === 'string' ? req.body.idToken.trim() : '';
+
+        if (!name || !subject || !message || !idToken) {
+            return res.status(400).json({ error: 'All fields are required, including Google authentication.' });
+        }
+
+        if (name.length > 90 || subject.length > 150 || message.length > 3000) {
+            return res.status(400).json({ error: 'Form content is too long.' });
+        }
+
+        const ticket = await googleClient.verifyIdToken({
+            idToken,
+            audience: GOOGLE_CLIENT_ID
+        });
+
+        const payload = ticket.getPayload();
+        const senderEmail = payload && payload.email ? String(payload.email).trim() : '';
+        const senderVerified = Boolean(payload && payload.email_verified);
+
+        if (!senderEmail || !senderVerified) {
+            return res.status(401).json({ error: 'Google account email could not be verified.' });
+        }
+
+        await mailTransporter.sendMail({
+            from: `Moores Website Contact <${GMAIL_USER}>`,
+            to: CONTACT_TO_EMAIL,
+            replyTo: senderEmail,
+            subject: `[Website Contact] ${subject}`,
+            text: [
+                `From name: ${name}`,
+                `Google email: ${senderEmail}`,
+                '',
+                'Message:',
+                message
+            ].join('\n')
+        });
+
+        return res.json({ success: true });
+    } catch {
+        return res.status(500).json({ error: 'Failed to send message.' });
     }
 });
 

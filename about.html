@@ -11,14 +11,17 @@
     <div class="header">
         <div class="header__container container">
             <div class="header__logo"><a class="header__logo-link" href="index.html"><img src="assets/logo.png" alt="Moores Waterproofing Logo" class="header__logo-img"></a></div>
-            <ul class="header__nav">
-                <li class="header__nav-item"><a class="header__nav-link" href="index.html">Home</a></li>
-                <li class="header__nav-item"><a class="header__nav-link" href="services.html">Services</a></li>
-                <li class="header__nav-item"><a class="header__nav-link" href="about.html">About</a></li>
-                <li class="header__nav-item"><a class="header__nav-link" href="gallery.html">Gallery</a></li>
-                <li class="header__nav-item"><a class="header__nav-link" href="contact.html">Contact</a></li>
-                <li class="header__nav-item"><button class="header__theme-toggle" id="themeToggle" type="button" aria-label="Switch theme" title="Switch theme">☀️</button></li>
-            </ul>
+            <button class="header__menu-toggle" type="button" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="siteNav">☰</button>
+            <nav class="header__nav-wrapper" id="siteNav">
+                <ul class="header__nav">
+                    <li class="header__nav-item"><a class="header__nav-link" href="index.html">Home</a></li>
+                    <li class="header__nav-item"><a class="header__nav-link" href="services.html">Services</a></li>
+                    <li class="header__nav-item"><a class="header__nav-link" href="about.html">About</a></li>
+                    <li class="header__nav-item"><a class="header__nav-link" href="gallery.html">Gallery</a></li>
+                    <li class="header__nav-item"><a class="header__nav-link" href="contact.html">Contact</a></li>
+                    <li class="header__nav-item"><button class="header__theme-toggle" id="themeToggle" type="button" aria-label="Switch theme" title="Switch theme">☀️</button></li>
+                </ul>
+            </nav>
         </div>
     </div>
 
@@ -52,6 +55,10 @@
     <!-- FOOTER -->
     <div class="footer">
         <div class="footer__container container">
+            <div class="footer__socials">
+                <a class="footer__social-link footer__social-link--facebook" href="https://www.facebook.com/weatherproofingpros" target="_blank" rel="noopener noreferrer" aria-label="Facebook profile">f</a>
+                <a class="footer__social-link footer__social-link--instagram" href="https://instagram.com/lokkibba" target="_blank" rel="noopener noreferrer" aria-label="Instagram profile">◎</a>
+            </div>
             <p class="footer__text">©2017 Moores Exteriors. All rights reserved.</p>
         </div>
     </div>

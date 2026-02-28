@@ -88,6 +88,10 @@ img {
     transform: translate(-50%, -50%);
 }
 
+.video-section iframe {
+    pointer-events: none;
+}
+
 
 @keyframes shine {
     0% { filter: drop-shadow(0 0 10px rgba(0,0,0,0.5)) brightness(1); }
@@ -155,4 +159,43 @@ img {
     font-size: 2.5rem;
     padding: 2rem 1rem 1rem;
     color: var(--color-text);
+}
+
+@media (max-width: 1024px) {
+    .container {
+        width: 92%;
+    }
+
+    .page-title {
+        font-size: 2.1rem;
+    }
+
+    .video-section {
+        height: min(300px, 62vw);
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        width: 94%;
+    }
+
+    .page-title {
+        font-size: 1.8rem;
+        padding: 1.4rem 0.75rem 0.75rem;
+    }
+
+    .video-section {
+        height: min(300px, 70vw);
+    }
+
+    .faq-section__title {
+        font-size: 1.7rem;
+        margin-bottom: 1.6rem;
+    }
+
+    .faq-question {
+        font-size: 1rem;
+        padding: 0.9rem;
+    }
 }

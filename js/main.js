@@ -11,7 +11,7 @@ function applyTheme(theme) {
 function updateThemeToggleLabel(button, theme) {
     const nextTheme = theme === 'dark' ? 'light' : 'dark';
     const icon = nextTheme === 'light' ? '☀️' : '🌙';
-    const label = nextTheme === 'light' ? 'Switch to light mode' : 'Switch to dark mode';
+    const label = nextTheme === 'light' ? 'Change to light mode' : 'Change to dark mode';
     button.textContent = icon;
     button.setAttribute('aria-label', label);
     button.setAttribute('title', label);
@@ -34,6 +34,226 @@ function initThemeToggle() {
         applyTheme(nextTheme);
         localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
         updateThemeToggleLabel(themeToggleButton, nextTheme);
+    });
+}
+
+function initHeaderMenu() {
+    const header = document.querySelector('.header');
+    const menuToggleButton = document.querySelector('.header__menu-toggle');
+    const navWrapper = document.querySelector('.header__nav-wrapper');
+
+    if (!header || !menuToggleButton || !navWrapper) {
+        return;
+    }
+
+    const closeMenu = () => {
+        header.classList.remove('header--menu-open');
+        menuToggleButton.setAttribute('aria-expanded', 'false');
+        menuToggleButton.textContent = '☰';
+    };
+
+    const openMenu = () => {
+        header.classList.add('header--menu-open');
+        menuToggleButton.setAttribute('aria-expanded', 'true');
+        menuToggleButton.textContent = '✕';
+    };
+
+    closeMenu();
+
+    menuToggleButton.addEventListener('click', () => {
+        const isOpen = header.classList.contains('header--menu-open');
+        if (isOpen) {
+            closeMenu();
+        } else {
+            openMenu();
+        }
+    });
+
+    navWrapper.addEventListener('click', event => {
+        const clickedLink = event.target.closest('.header__nav-link');
+        if (clickedLink) {
+            closeMenu();
+        }
+    });
+
+    document.addEventListener('click', event => {
+        const isOpen = header.classList.contains('header--menu-open');
+        if (!isOpen) {
+            return;
+        }
+
+        const clickedInsideMenu = event.target.closest('.header__nav-wrapper');
+        const clickedToggle = event.target.closest('.header__menu-toggle');
+        if (!clickedInsideMenu && !clickedToggle) {
+            closeMenu();
+        }
+    });
+
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 900) {
+            closeMenu();
+        }
+    });
+
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape') {
+            closeMenu();
+        }
+    });
+}
+
+function initHeaderScrollState() {
+    const header = document.querySelector('.header');
+    if (!header) {
+        return;
+    }
+
+    const updateHeaderState = () => {
+        if (window.scrollY > 24) {
+            header.classList.add('header--scrolled');
+        } else {
+            header.classList.remove('header--scrolled');
+        }
+    };
+
+    updateHeaderState();
+    window.addEventListener('scroll', updateHeaderState, { passive: true });
+}
+
+function initContactEmailForm() {
+    const form = document.getElementById('contactEmailForm');
+    const sendButton = document.getElementById('contactSendBtn');
+    const statusElement = document.getElementById('contactFormStatus');
+    const googleStatusElement = document.getElementById('contactGoogleStatus');
+    const googleButtonContainer = document.getElementById('googleSignInButton');
+
+    if (!form || !sendButton || !statusElement || !googleStatusElement || !googleButtonContainer) {
+        return;
+    }
+
+    const gmailToEmail = 'mooresexterios@gmail.com';
+    let googleIdToken = '';
+    let authenticatedEmail = '';
+
+    const waitForGoogleSdk = (timeoutMs = 8000) => new Promise(resolve => {
+        const startTime = Date.now();
+        const timer = window.setInterval(() => {
+            if (window.google && window.google.accounts && window.google.accounts.id) {
+                window.clearInterval(timer);
+                resolve(true);
+                return;
+            }
+
+            if (Date.now() - startTime >= timeoutMs) {
+                window.clearInterval(timer);
+                resolve(false);
+            }
+        }, 120);
+    });
+
+    const setSignedInState = (signedIn) => {
+        sendButton.disabled = !signedIn;
+        if (!signedIn) {
+            googleStatusElement.textContent = 'Not signed in.';
+            return;
+        }
+        googleStatusElement.textContent = `Signed in as ${authenticatedEmail}`;
+    };
+
+    const initializeGoogleSignIn = async () => {
+        const sdkLoaded = await waitForGoogleSdk();
+        if (!sdkLoaded) {
+            statusElement.textContent = 'Google sign-in failed to load. Please refresh.';
+            return;
+        }
+
+        try {
+            const configResponse = await fetch('/api/public-config');
+            if (!configResponse.ok) {
+                statusElement.textContent = 'Contact form is unavailable right now.';
+                return;
+            }
+
+            const config = await configResponse.json();
+            if (!config.googleClientId || !config.gmailComposeEnabled) {
+                statusElement.textContent = 'Contact form is not configured yet.';
+                return;
+            }
+
+            window.google.accounts.id.initialize({
+                client_id: config.googleClientId,
+                callback: (response) => {
+                    if (!response || !response.credential) {
+                        setSignedInState(false);
+                        return;
+                    }
+
+                    googleIdToken = response.credential;
+
+                    try {
+                        const payloadPart = googleIdToken.split('.')[1];
+                        const payload = JSON.parse(atob(payloadPart.replace(/-/g, '+').replace(/_/g, '/')));
+                        authenticatedEmail = payload && payload.email ? payload.email : 'your Google account';
+                    } catch {
+                        authenticatedEmail = 'your Google account';
+                    }
+
+                    setSignedInState(true);
+                    statusElement.textContent = '';
+                }
+            });
+
+            window.google.accounts.id.renderButton(googleButtonContainer, {
+                type: 'standard',
+                theme: 'outline',
+                size: 'large',
+                text: 'signin_with',
+                width: 260
+            });
+        } catch {
+            statusElement.textContent = 'Unable to initialize Google sign-in.';
+        }
+    };
+
+    setSignedInState(false);
+    initializeGoogleSignIn();
+
+    form.addEventListener('submit', async event => {
+        event.preventDefault();
+
+        if (!googleIdToken) {
+            statusElement.textContent = 'Please sign in with Google first.';
+            return;
+        }
+
+        const nameInput = document.getElementById('contactName');
+        const subjectInput = document.getElementById('contactSubject');
+        const messageInput = document.getElementById('contactMessage');
+
+        const name = nameInput ? nameInput.value.trim() : '';
+        const subject = subjectInput ? subjectInput.value.trim() : '';
+        const message = messageInput ? messageInput.value.trim() : '';
+
+        if (!name || !subject || !message) {
+            statusElement.textContent = 'Please complete all fields.';
+            return;
+        }
+
+        sendButton.disabled = true;
+        statusElement.textContent = 'Opening Gmail draft...';
+
+        const composedMessage = [
+            `Name: ${name}`,
+            `Google account: ${authenticatedEmail}`,
+            '',
+            message
+        ].join('\n');
+
+        const composeUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(gmailToEmail)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(composedMessage)}`;
+        window.open(composeUrl, '_blank', 'noopener,noreferrer');
+
+        statusElement.textContent = 'Gmail draft opened. Press Send in Gmail to deliver your message.';
+        sendButton.disabled = false;
     });
 }
 
@@ -343,7 +563,10 @@ function initGalleryUploader() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+    initHeaderScrollState();
+    initHeaderMenu();
     initThemeToggle();
+    initContactEmailForm();
     initGalleryUploader();
 
     const videoSection = document.getElementById('videoSection');
@@ -371,7 +594,7 @@ function openVideoModal() {
     inner.appendChild(closeBtn);
 
     const video = document.createElement('iframe');
-    video.src = 'https://www.youtube.com/embed/HvuPNqTCrh0?autoplay=1&mute=1&loop=1&playlist=HvuPNqTCrh0&rel=0&vq=hd720';
+    video.src = 'https://www.youtube.com/embed/HvuPNqTCrh0?autoplay=1&mute=1&loop=1&playlist=HvuPNqTCrh0&controls=0&rel=0&vq=hd720&modestbranding=1&iv_load_policy=3&disablekb=1&playsinline=1&fs=0';
     video.title = 'Moores Waterproofing project video';
     video.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
     video.referrerPolicy = 'strict-origin-when-cross-origin';

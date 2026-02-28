@@ -78,3 +78,7 @@ Set these environment variables in production:
 - `OWNER_PASSWORD_SALT`
 - `OWNER_PASSWORD_HASH`
 - `PORT`
+- `GOOGLE_CLIENT_ID` (Google OAuth web client ID)
+- `GMAIL_USER` (Gmail address used to send contact emails)
+- `GMAIL_APP_PASSWORD` (App password for `GMAIL_USER`)
+- `CONTACT_TO_EMAIL` (destination inbox; defaults to mooresexteriors@gmail.com)

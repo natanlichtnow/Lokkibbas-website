@@ -5,20 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact - Moores Waterproofing</title>
     <link rel="stylesheet" href="css/main.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
     <!-- HEADER -->
     <div class="header">
         <div class="header__container container">
             <div class="header__logo"><a class="header__logo-link" href="index.html"><img src="assets/logo.png" alt="Moores Waterproofing Logo" class="header__logo-img"></a></div>
-            <ul class="header__nav">
-                <li class="header__nav-item"><a class="header__nav-link" href="index.html">Home</a></li>
-                <li class="header__nav-item"><a class="header__nav-link" href="services.html">Services</a></li>
-                <li class="header__nav-item"><a class="header__nav-link" href="about.html">About</a></li>
-                <li class="header__nav-item"><a class="header__nav-link" href="gallery.html">Gallery</a></li>
-                <li class="header__nav-item"><a class="header__nav-link" href="contact.html">Contact</a></li>
-                <li class="header__nav-item"><button class="header__theme-toggle" id="themeToggle" type="button" aria-label="Switch theme" title="Switch theme">☀️</button></li>
-            </ul>
+            <button class="header__menu-toggle" type="button" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="siteNav">☰</button>
+            <nav class="header__nav-wrapper" id="siteNav">
+                <ul class="header__nav">
+                    <li class="header__nav-item"><a class="header__nav-link" href="index.html">Home</a></li>
+                    <li class="header__nav-item"><a class="header__nav-link" href="services.html">Services</a></li>
+                    <li class="header__nav-item"><a class="header__nav-link" href="about.html">About</a></li>
+                    <li class="header__nav-item"><a class="header__nav-link" href="gallery.html">Gallery</a></li>
+                    <li class="header__nav-item"><a class="header__nav-link" href="contact.html">Contact</a></li>
+                    <li class="header__nav-item"><button class="header__theme-toggle" id="themeToggle" type="button" aria-label="Switch theme" title="Switch theme">☀️</button></li>
+                </ul>
+            </nav>
         </div>
     </div>
 
@@ -29,6 +33,30 @@
                 <h2 class="contact__title">Get in Touch</h2>
                 <p class="contact__info">Phone: <a class="contact__link" href="tel:12507939581">(250) 793-9581</a><br>
                 Email: <a class="contact__link" href="mailto:mooresexteriors@gmail.com">mooresexteriors@gmail.com</a></p>
+
+                <section class="contact-form" aria-label="Send us an email">
+                    <h3 class="contact-form__title">Send us an Email</h3>
+                    <p class="contact-form__intro">Sign in with Gmail first, then open a pre-filled Gmail compose window.</p>
+
+                    <div class="contact-form__google" id="contactGoogleArea">
+                        <div id="googleSignInButton"></div>
+                        <p class="contact-form__google-status" id="contactGoogleStatus">Not signed in.</p>
+                    </div>
+
+                    <form class="contact-form__fields" id="contactEmailForm">
+                        <label class="contact-form__label" for="contactName">Name</label>
+                        <input class="contact-form__input" id="contactName" name="name" type="text" maxlength="90" required>
+
+                        <label class="contact-form__label" for="contactSubject">Subject</label>
+                        <input class="contact-form__input" id="contactSubject" name="subject" type="text" maxlength="150" required>
+
+                        <label class="contact-form__label" for="contactMessage">Message</label>
+                        <textarea class="contact-form__textarea" id="contactMessage" name="message" maxlength="3000" rows="5" required></textarea>
+
+                        <button class="contact-form__button" id="contactSendBtn" type="submit" disabled>Open Gmail Draft</button>
+                        <p class="contact-form__status" id="contactFormStatus" aria-live="polite"></p>
+                    </form>
+                </section>
             </div>
         </div>
     </div>
@@ -36,6 +64,10 @@
     <!-- FOOTER -->
     <div class="footer">
         <div class="footer__container container">
+            <div class="footer__socials">
+                <a class="footer__social-link footer__social-link--facebook" href="https://www.facebook.com/weatherproofingpros" target="_blank" rel="noopener noreferrer" aria-label="Facebook profile">f</a>
+                <a class="footer__social-link footer__social-link--instagram" href="https://instagram.com/lokkibba" target="_blank" rel="noopener noreferrer" aria-label="Instagram profile">◎</a>
+            </div>
             <p class="footer__text">©2017 Moores Exteriors. All rights reserved.</p>
         </div>
     </div>
