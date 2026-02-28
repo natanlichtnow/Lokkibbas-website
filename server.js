@@ -155,6 +155,7 @@ const upload = multer({
 
 app.use(helmet({
     crossOriginResourcePolicy: { policy: 'cross-origin' },
+    crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
     contentSecurityPolicy: {
         useDefaults: true,
         directives: {
