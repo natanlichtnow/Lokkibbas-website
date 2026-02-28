@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owner Dashboard - Moores Waterproofing</title>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+    <div class="header">
+        <div class="header__container container">
+            <div class="header__logo"><a class="header__logo-link" href="index.html"><img src="assets/logo.png" alt="Moores Waterproofing Logo" class="header__logo-img"></a></div>
+            <ul class="header__nav">
+                <li class="header__nav-item"><a class="header__nav-link" href="index.html">Home</a></li>
+                <li class="header__nav-item"><a class="header__nav-link" href="services.html">Services</a></li>
+                <li class="header__nav-item"><a class="header__nav-link" href="about.html">About</a></li>
+                <li class="header__nav-item"><a class="header__nav-link" href="gallery.html">Gallery</a></li>
+                <li class="header__nav-item"><a class="header__nav-link" href="contact.html">Contact</a></li>
+                <li class="header__nav-item"><button class="header__theme-toggle" id="themeToggle" type="button" aria-label="Switch theme" title="Switch theme">☀️</button></li>
+            </ul>
+        </div>
+    </div>
+
+    <main class="dashboard-page container">
+        <h1 class="page-title">Owner Dashboard</h1>
+
+        <section class="dashboard-card" id="dashboardLoginCard">
+            <h2 class="dashboard-card__title">Secure Access</h2>
+            <p class="dashboard-card__intro">Only the website owner can publish or remove gallery posts.</p>
+
+            <form class="dashboard-form" id="dashboardLoginForm">
+                <label class="dashboard-form__label" for="dashboardUsername">Username</label>
+                <input class="dashboard-form__input" id="dashboardUsername" name="username" type="text" autocomplete="username" required>
+
+                <label class="dashboard-form__label" for="dashboardPassword">Safety Code</label>
+                <input class="dashboard-form__input" id="dashboardPassword" name="password" type="password" autocomplete="current-password" required>
+
+                <button class="dashboard-form__button" type="submit">Enter Dashboard</button>
+                <p class="dashboard-form__status" id="dashboardLoginStatus" aria-live="polite"></p>
+            </form>
+        </section>
+
+        <section class="dashboard-card dashboard-card--hidden" id="dashboardAppCard">
+            <div class="dashboard-card__bar">
+                <h2 class="dashboard-card__title">Post to Gallery</h2>
+                <button class="dashboard-form__button dashboard-form__button--secondary" id="dashboardLogoutBtn" type="button">Log out</button>
+            </div>
+
+            <form class="dashboard-form" id="dashboardPostForm">
+                <label class="dashboard-form__label" for="dashboardTitle">Title</label>
+                <input class="dashboard-form__input" id="dashboardTitle" name="title" type="text" maxlength="90" required>
+
+                <label class="dashboard-form__label" for="dashboardDescription">Description</label>
+                <textarea class="dashboard-form__textarea" id="dashboardDescription" name="description" maxlength="500" rows="4" required></textarea>
+
+                <label class="dashboard-form__label" for="dashboardYoutubeUrl">YouTube URL (optional)</label>
+                <input class="dashboard-form__input" id="dashboardYoutubeUrl" name="youtubeUrl" type="url" placeholder="https://www.youtube.com/watch?v=...">
+
+                <p class="dashboard-form__hint">OR upload a photo (JPG, PNG, WEBP)</p>
+
+                <label class="dashboard-form__label" for="dashboardImageFile">Uploaded Photo (optional)</label>
+                <input class="dashboard-form__input" id="dashboardImageFile" name="imageFile" type="file" accept="image/*">
+
+                <button class="dashboard-form__button" type="submit">Publish Post</button>
+                <p class="dashboard-form__status" id="dashboardPostStatus" aria-live="polite"></p>
+            </form>
+
+            <section class="dashboard-feed" id="dashboardFeed" aria-live="polite">
+                <p class="dashboard-feed__empty" id="dashboardFeedEmpty">No posts yet.</p>
+            </section>
+        </section>
+    </main>
+
+    <div class="footer">
+        <div class="footer__container container">
+            <p class="footer__text">©2017 Moores Exteriors. All rights reserved.</p>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

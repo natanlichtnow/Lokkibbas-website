@@ -1,0 +1,18 @@
+.contact {
+    padding: 4rem 1rem;
+    background-color: var(--color-surface);
+    text-align: center;
+}
+.contact__title {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: var(--color-text);
+}
+.contact__info {
+    font-size: 1rem;
+    color: var(--color-text-muted);
+}
+.contact__link {
+    color: var(--color-accent);
+    font-weight: bold;
+}
