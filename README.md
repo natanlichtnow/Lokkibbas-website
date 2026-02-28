@@ -1,57 +1,38 @@
-# Moore's Waterproofing Website
+# Moores Waterproofing Website
 
-This workspace contains a static website for **Moore's Waterproofing** (based loosely on https://www.mooresexteriors.com/).
+Production-ready website with two operating modes:
 
-## Structure & BEM Organization
+- **GitHub Pages demo mode** (no backend required)
+- **Secure server mode** (owner authentication + server-stored gallery posts)
 
-The project follows the **Block-Element-Modifier (BEM)** methodology along with a simple **OOP-style component loader** in JavaScript. Each visual block is kept in its own folder/file to promote separation of concerns.
+## Project Files
 
-```
-/ (root)
-├─ index.html            # entry point; placeholders for blocks
-├─ README.md
-├─ assets/               # images, fonts, etc.
-├─ css/
-│  ├─ main.css           # imports all block styles plus global resets
-│  └─ blocks/            # one CSS file per BEM block
-│     ├─ header.css
-│     ├─ hero.css
-│     ├─ services.css
-│     ├─ about.css
-│     ├─ contact.css
-│     └─ footer.css
-├─ components/           # HTML snippets for each block
-│     ├─ header.html
-│     ├─ hero.html
-│     ├─ services.html
-│     ├─ about.html
-│     ├─ contact.html
-│     └─ footer.html
-└─ js/
-   └─ main.js            # JavaScript responsible for loading component HTML
-```
+- Public pages: `index.html`, `services.html`, `about.html`, `gallery.html`, `contact.html`
+- Private dashboard page: `onlylokkibans.html`
+- Shared frontend logic: `js/main.js`
+- Gallery feed logic: `js/gallery.js`
+- Dashboard app logic: `js/dashboard.js`
+- Optional backend API: `server.js`
 
-Each CSS file uses BEM class names such as `header__nav`, `services__item`, etc.  Blocks may contain elements (`__`) and modifiers (`--`).
+## GitHub Pages Demo Mode
 
-The JavaScript demonstrates a simple OOP pattern with a `ComponentLoader` class that fetches each block's HTML and injects it into the DOM.
+Use this mode for client showcase.
 
-## Usage
+### Behavior
 
-1. Place your own hero image in `assets/hero.jpg` or adjust the CSS background path.
-2. Open `index.html` in a browser; the page will assemble dynamically.
-3. Customize text, add more blocks, or extend styles following BEM naming.
+- Public gallery works from browser demo storage when no API is present.
+- Private dashboard works in demo mode with local storage fallback.
+- Contact form opens a pre-filled email draft (`mailto:`).
 
----
+### Deploy
 
-Feel free to expand or refactor as needed. The current layout is minimal but demonstrates the requested methodologies.
+1. Push repository to GitHub.
+2. Enable **GitHub Pages** in repository settings.
+3. Open your generated Pages URL.
 
-## Secure Owner Dashboard + Server Gallery
+## Secure Server Mode
 
-The project now includes:
-
-- Public read-only gallery page: [gallery.html](gallery.html)
-- Protected owner dashboard: [onlylokkibans.html](onlylokkibans.html)
-- Server API with protected post creation/deletion: [server.js](server.js)
+Use this mode for real protected publishing/deleting.
 
 ### Run locally
 
@@ -62,23 +43,23 @@ The project now includes:
 3. Open:
    - `http://localhost:3000`
 
+Private dashboard URL:
+- `http://localhost:3000/onlylokkibans.html`
+
 ### Owner credentials
 
 - Username: `roofboi`
 - Password: `4251`
 
-The server stores a PBKDF2 hash of the password (not plaintext) and uses JWT auth for dashboard actions.
-
-### Recommended production env overrides
-
-Set these environment variables in production:
+## Recommended Production Environment Variables
 
 - `TOKEN_SECRET` (strong random secret)
 - `OWNER_USERNAME`
 - `OWNER_PASSWORD_SALT`
 - `OWNER_PASSWORD_HASH`
 - `PORT`
-- `GOOGLE_CLIENT_ID` (Google OAuth web client ID)
-- `GMAIL_USER` (Gmail address used to send contact emails)
-- `GMAIL_APP_PASSWORD` (App password for `GMAIL_USER`)
-- `CONTACT_TO_EMAIL` (destination inbox; defaults to mooresexteriors@gmail.com)
+
+## Repo Hygiene
+
+- `node_modules/`, `uploads/`, logs, and `.env` are ignored by `.gitignore`.
+- Keep secure credentials only in environment variables for production.
