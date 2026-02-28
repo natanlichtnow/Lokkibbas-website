@@ -67,22 +67,24 @@ img {
 }
 
 .video-section {
-    width: 100%;
-    height: 300px;
+    width: 100vw;
+    height: min(300px, 56.25vw);
+    max-height: 300px;
     overflow: hidden;
     cursor: pointer;
     position: relative;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
 }
 .video-section iframe,
 .video-section video {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 56.25vw;
+    min-height: 100%;
     border: 0;
-    object-fit: cover;
-    object-position: center center;
     transform: translate(-50%, -50%);
 }
 
@@ -111,11 +113,14 @@ img {
     align-items: center;
     justify-content: center;
 }
+.video-modal iframe,
 .video-modal video {
-    max-width: 90%;
-    max-height: 90%;
+    width: min(1200px, 90vw);
+    aspect-ratio: 16 / 9;
+    max-height: 90vh;
     position: static;
     transform: none;
+    border: 0;
 }
 
 .video-modal__close {

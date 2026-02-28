@@ -370,18 +370,13 @@ function openVideoModal() {
     closeBtn.addEventListener('click', () => document.body.removeChild(modal));
     inner.appendChild(closeBtn);
 
-    // create video element
-    const video = document.createElement('video');
-    video.autoplay = true;
-    video.muted = true;
-    video.controls = true;
-    video.loop = true;
+    const video = document.createElement('iframe');
+    video.src = 'https://www.youtube.com/embed/HvuPNqTCrh0?autoplay=1&mute=1&loop=1&playlist=HvuPNqTCrh0&rel=0&vq=hd720';
+    video.title = 'Moores Waterproofing project video';
+    video.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+    video.referrerPolicy = 'strict-origin-when-cross-origin';
+    video.allowFullscreen = true;
 
-    const src = document.createElement('source');
-    src.src = 'assets/Progress - finished roof.mp4';
-    src.type = 'video/mp4';
-
-    video.appendChild(src);
     inner.appendChild(video);
     modal.appendChild(inner);
 
