@@ -5,7 +5,7 @@
     position: sticky;
     top: 0;
     z-index: 1100;
-    transition: background-color 0.25s ease, border-color 0.25s ease, backdrop-filter 0.25s ease, -webkit-backdrop-filter 0.25s ease;
+    transition: background-color 0.25s ease, border-color 0.25s ease;
 }
 .header__container {
     display: flex;
@@ -144,9 +144,7 @@
         content: '';
         position: fixed;
         inset: 0;
-        background: rgba(0, 0, 0, 0.22);
-        backdrop-filter: blur(3px);
-        -webkit-backdrop-filter: blur(3px);
+        background: rgba(0, 0, 0, 0.3);
         z-index: 1200;
         pointer-events: none;
         opacity: 0;
@@ -183,9 +181,9 @@
         top: 4.25rem;
         right: 0.9rem;
         z-index: 1250;
-        background-color: rgba(20, 26, 35, 0.58);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
+        background-color: rgba(20, 26, 35, 0.72);
+        backdrop-filter: blur(7px);
+        -webkit-backdrop-filter: blur(7px);
         border: 1px solid var(--color-border);
         border-radius: 12px;
         padding: 0.7rem;
@@ -194,6 +192,7 @@
         pointer-events: none;
         transform: translateY(-10px) scale(0.98);
         transform-origin: top right;
+        will-change: opacity, transform;
         transition: opacity 0.25s ease, transform 0.25s ease, visibility 0s linear 0.25s;
     }
 
