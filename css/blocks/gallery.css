@@ -275,6 +275,36 @@
     border: 1px solid var(--color-border);
 }
 
+.gallery-lightbox__image--slide-next {
+    animation: gallery-slide-next 240ms ease;
+}
+
+.gallery-lightbox__image--slide-prev {
+    animation: gallery-slide-prev 240ms ease;
+}
+
+@keyframes gallery-slide-next {
+    from {
+        opacity: 0.5;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes gallery-slide-prev {
+    from {
+        opacity: 0.5;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
 .gallery-lightbox__close {
     position: absolute;
     top: -14px;

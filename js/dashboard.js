@@ -89,12 +89,18 @@ async function isApiAvailable() {
     }
 }
 
-function renderDashboardPosts(posts, feedElement, emptyStateElement, onRemovePost) {
-    const existing = feedElement.querySelectorAll('.dashboard-post');
-    existing.forEach(node => node.remove());
+function renderDashboardPosts(posts, feedElement, emptyStateElement, onRemovePost, options = {}) {
+    const shouldAppend = Boolean(options.append);
+
+    if (!shouldAppend) {
+        const existing = feedElement.querySelectorAll('.dashboard-post');
+        existing.forEach(node => node.remove());
+    }
 
     if (!posts.length) {
-        emptyStateElement.style.display = 'block';
+        if (!shouldAppend && !feedElement.querySelector('.dashboard-post')) {
+            emptyStateElement.style.display = 'block';
+        }
         return;
     }
 
@@ -114,7 +120,7 @@ function renderDashboardPosts(posts, feedElement, emptyStateElement, onRemovePos
         const removeButton = document.createElement('button');
         removeButton.className = 'dashboard-post__remove';
         removeButton.type = 'button';
-        removeButton.textContent = 'Remove item';
+        removeButton.textContent = 'Delete post';
         removeButton.addEventListener('click', () => onRemovePost(post.id));
 
         bar.appendChild(title);
@@ -125,7 +131,6 @@ function renderDashboardPosts(posts, feedElement, emptyStateElement, onRemovePos
         meta.textContent = new Date(post.createdAt).toLocaleString();
 
         let mediaElement;
-        let mediaCountElement;
         if (post.mediaKind === 'youtube' && post.youtubeId) {
             mediaElement = document.createElement('iframe');
             mediaElement.className = 'dashboard-post__media dashboard-post__media--youtube';
@@ -136,21 +141,52 @@ function renderDashboardPosts(posts, feedElement, emptyStateElement, onRemovePos
             mediaElement.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
         } else if (post.mediaKind === 'image') {
             const imageSources = getImageSources(post);
-            const imageSource = imageSources[0];
-
-            if (!imageSource) {
+            if (!imageSources.length) {
                 return;
             }
 
-            mediaElement = document.createElement('img');
-            mediaElement.className = 'dashboard-post__media';
-            mediaElement.src = imageSource;
-            mediaElement.alt = post.title;
+            if (imageSources.length === 1) {
+                mediaElement = document.createElement('img');
+                mediaElement.className = 'dashboard-post__media';
+                mediaElement.src = imageSources[0];
+                mediaElement.alt = post.title;
+            } else {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'dashboard-post__grid-wrap';
 
-            if (imageSources.length > 1) {
-                mediaCountElement = document.createElement('p');
-                mediaCountElement.className = 'dashboard-post__meta';
-                mediaCountElement.textContent = `${imageSources.length} photos in this post`;
+                const grid = document.createElement('div');
+                grid.className = 'dashboard-post__grid';
+
+                const visibleImages = imageSources.slice(0, 4);
+                const hiddenCount = Math.max(imageSources.length - visibleImages.length, 0);
+
+                visibleImages.forEach((source, index) => {
+                    const tile = document.createElement('div');
+                    tile.className = 'dashboard-post__grid-item';
+
+                    const image = document.createElement('img');
+                    image.className = 'dashboard-post__grid-image';
+                    image.src = source;
+                    image.alt = `${post.title} image ${index + 1}`;
+                    tile.appendChild(image);
+
+                    if (hiddenCount > 0 && index === visibleImages.length - 1) {
+                        const moreBadge = document.createElement('span');
+                        moreBadge.className = 'dashboard-post__grid-more';
+                        moreBadge.textContent = `+${hiddenCount}`;
+                        tile.appendChild(moreBadge);
+                    }
+
+                    grid.appendChild(tile);
+                });
+
+                const imageCount = document.createElement('p');
+                imageCount.className = 'dashboard-post__grid-count';
+                imageCount.textContent = `${imageSources.length} photos`;
+
+                wrapper.appendChild(grid);
+                wrapper.appendChild(imageCount);
+                mediaElement = wrapper;
             }
         }
 
@@ -163,20 +199,30 @@ function renderDashboardPosts(posts, feedElement, emptyStateElement, onRemovePos
         if (mediaElement) {
             article.appendChild(mediaElement);
         }
-        if (mediaCountElement) {
-            article.appendChild(mediaCountElement);
-        }
         article.appendChild(description);
         feedElement.appendChild(article);
     });
 }
 
-async function fetchPosts() {
-    const response = await fetch('/api/posts');
+async function fetchPostsPage(offset, limit) {
+    const response = await fetch(`/api/posts?offset=${offset}&limit=${limit}`);
     if (!response.ok) {
         throw new Error('Failed to fetch posts');
     }
-    return response.json();
+
+    const payload = await response.json();
+    if (Array.isArray(payload)) {
+        const page = payload.slice(offset, offset + limit);
+        return {
+            posts: page,
+            hasMore: offset + page.length < payload.length
+        };
+    }
+
+    return {
+        posts: Array.isArray(payload.posts) ? payload.posts : [],
+        hasMore: Boolean(payload.hasMore)
+    };
 }
 
 function setDashboardVisibility(isLoggedIn, loginCard, appCard) {
@@ -200,18 +246,122 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     let authToken = sessionStorage.getItem(DASHBOARD_TOKEN_KEY) || '';
-    let posts = [];
     let usingApi = true;
+    let demoPosts = [];
+    let offset = 0;
+    let hasMore = false;
+    let isLoading = false;
+    let loadFailed = false;
+    let loadObserver;
+    const PAGE_SIZE = 6;
+
+    const loadingIndicator = document.createElement('p');
+    loadingIndicator.className = 'dashboard-feed__loading';
+    loadingIndicator.textContent = 'Scroll to load more';
 
     const sortPosts = list => [...list].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-    const refreshFeed = async () => {
-        if (usingApi) {
-            posts = await fetchPosts();
-        } else {
-            posts = sortPosts(getDemoPosts());
+    const updateLoadingIndicator = () => {
+        if (loadFailed) {
+            loadingIndicator.style.display = 'block';
+            loadingIndicator.textContent = 'Unable to load more posts.';
+            return;
         }
-        renderDashboardPosts(posts, feedElement, emptyStateElement, handleRemovePost);
+
+        if (hasMore) {
+            loadingIndicator.style.display = 'block';
+            loadingIndicator.textContent = isLoading ? 'Loading more...' : 'Scroll to load more';
+            return;
+        }
+
+        loadingIndicator.style.display = 'none';
+    };
+
+    const loadNextPage = async () => {
+        if (isLoading || !hasMore) {
+            return;
+        }
+
+        isLoading = true;
+        updateLoadingIndicator();
+
+        try {
+            let pagePosts = [];
+            if (usingApi) {
+                const page = await fetchPostsPage(offset, PAGE_SIZE);
+                pagePosts = page.posts;
+                hasMore = page.hasMore;
+            } else {
+                pagePosts = demoPosts.slice(offset, offset + PAGE_SIZE);
+                hasMore = offset + pagePosts.length < demoPosts.length;
+            }
+
+            renderDashboardPosts(pagePosts, feedElement, emptyStateElement, handleRemovePost, { append: true });
+            offset += pagePosts.length;
+
+            if (!hasMore && loadObserver) {
+                loadObserver.disconnect();
+            }
+        } catch {
+            loadFailed = true;
+            hasMore = false;
+            if (loadObserver) {
+                loadObserver.disconnect();
+            }
+        } finally {
+            isLoading = false;
+            updateLoadingIndicator();
+        }
+    };
+
+    const setupInfiniteScroll = () => {
+        if (loadObserver) {
+            loadObserver.disconnect();
+        }
+
+        if (!feedElement.contains(loadingIndicator)) {
+            feedElement.appendChild(loadingIndicator);
+        }
+
+        if (!hasMore) {
+            updateLoadingIndicator();
+            return;
+        }
+
+        loadObserver = new IntersectionObserver(entries => {
+            if (entries.some(entry => entry.isIntersecting)) {
+                loadNextPage();
+            }
+        }, {
+            rootMargin: '300px 0px'
+        });
+
+        loadObserver.observe(loadingIndicator);
+        updateLoadingIndicator();
+    };
+
+    const refreshFeed = async () => {
+        offset = 0;
+        hasMore = false;
+        isLoading = false;
+        loadFailed = false;
+
+        try {
+            if (usingApi) {
+                const firstPage = await fetchPostsPage(0, PAGE_SIZE);
+                renderDashboardPosts(firstPage.posts, feedElement, emptyStateElement, handleRemovePost);
+                offset = firstPage.posts.length;
+                hasMore = firstPage.hasMore;
+            } else {
+                demoPosts = sortPosts(getDemoPosts());
+                const firstPage = demoPosts.slice(0, PAGE_SIZE);
+                renderDashboardPosts(firstPage, feedElement, emptyStateElement, handleRemovePost);
+                offset = firstPage.length;
+                hasMore = offset < demoPosts.length;
+            }
+        } finally {
+            setupInfiniteScroll();
+        }
     };
 
     const handleRemovePost = async postId => {
@@ -248,6 +398,9 @@ window.addEventListener('DOMContentLoaded', () => {
     const deactivateDashboard = () => {
         authToken = '';
         sessionStorage.removeItem(DASHBOARD_TOKEN_KEY);
+        if (loadObserver) {
+            loadObserver.disconnect();
+        }
         setDashboardVisibility(false, loginCard, appCard);
         loginStatus.textContent = '';
         postStatus.textContent = '';

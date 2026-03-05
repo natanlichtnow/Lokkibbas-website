@@ -79,15 +79,25 @@ function openGalleryLightbox(imageSources, startIndex, imageAlt) {
 
     let currentIndex = Math.max(0, Math.min(startIndex || 0, imageSources.length - 1));
 
-    const setImage = index => {
+    const animateSlide = direction => {
+        image.classList.remove('gallery-lightbox__image--slide-next', 'gallery-lightbox__image--slide-prev');
+        void image.offsetWidth;
+        image.classList.add(direction === 'next' ? 'gallery-lightbox__image--slide-next' : 'gallery-lightbox__image--slide-prev');
+    };
+
+    const setImage = (index, direction, animate) => {
         currentIndex = (index + imageSources.length) % imageSources.length;
         image.src = imageSources[currentIndex];
         image.alt = imageAlt || 'Gallery image';
         count.textContent = imageSources.length > 1 ? `${currentIndex + 1} / ${imageSources.length}` : '';
+
+        if (animate && imageSources.length > 1) {
+            animateSlide(direction === 'prev' ? 'prev' : 'next');
+        }
     };
 
-    const showPrevious = () => setImage(currentIndex - 1);
-    const showNext = () => setImage(currentIndex + 1);
+    const showPrevious = () => setImage(currentIndex - 1, 'prev', true);
+    const showNext = () => setImage(currentIndex + 1, 'next', true);
 
     const escHandler = event => {
         if (event.key === 'Escape') {
@@ -204,7 +214,7 @@ function openGalleryLightbox(imageSources, startIndex, imageAlt) {
         inner.appendChild(nextButton);
     }
 
-    setImage(currentIndex);
+    setImage(currentIndex, 'next', false);
     lightbox.appendChild(inner);
     document.body.appendChild(lightbox);
 }
