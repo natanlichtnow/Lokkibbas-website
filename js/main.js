@@ -44,14 +44,20 @@ function initHeaderMenu() {
         return;
     }
 
+    const menuBackdrop = document.createElement('div');
+    menuBackdrop.className = 'menu-backdrop';
+    document.body.appendChild(menuBackdrop);
+
     const closeMenu = () => {
         header.classList.remove('header--menu-open');
+        menuBackdrop.classList.remove('menu-backdrop--visible');
         menuToggleButton.setAttribute('aria-expanded', 'false');
         menuToggleButton.textContent = '☰';
     };
 
     const openMenu = () => {
         header.classList.add('header--menu-open');
+        menuBackdrop.classList.add('menu-backdrop--visible');
         menuToggleButton.setAttribute('aria-expanded', 'true');
         menuToggleButton.textContent = '✕';
     };
@@ -72,6 +78,10 @@ function initHeaderMenu() {
         if (clickedLink) {
             closeMenu();
         }
+    });
+
+    menuBackdrop.addEventListener('click', () => {
+        closeMenu();
     });
 
     document.addEventListener('click', event => {
