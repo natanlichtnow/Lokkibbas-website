@@ -67,6 +67,55 @@ function saveDemoPosts(posts) {
     localStorage.setItem(DEMO_GALLERY_STORAGE_KEY, JSON.stringify(posts));
 }
 
+function isPortableImageSource(source) {
+    return typeof source === 'string' && source.trim() && !source.startsWith('/uploads/');
+}
+
+function normalizePortablePosts(posts) {
+    if (!Array.isArray(posts)) {
+        return [];
+    }
+
+    return posts.filter(post => {
+        if (!post || typeof post !== 'object') {
+            return false;
+        }
+
+        if (post.mediaKind === 'youtube') {
+            return typeof post.youtubeId === 'string' && post.youtubeId.trim().length > 0;
+        }
+
+        if (post.mediaKind !== 'image') {
+            return false;
+        }
+
+        const sources = getImageSources(post);
+        return sources.some(isPortableImageSource);
+    }).map(post => {
+        if (post.mediaKind !== 'image') {
+            return post;
+        }
+
+        const sources = getImageSources(post).filter(isPortableImageSource);
+        return {
+            ...post,
+            mediaUrls: sources,
+            mediaUrl: sources[0] || undefined,
+            mediaData: undefined
+        };
+    });
+}
+
+async function loadStaticSeedPosts() {
+    const response = await fetch('data/posts.json', { cache: 'no-store' });
+    if (!response.ok) {
+        throw new Error('Failed to load static seed posts');
+    }
+
+    const payload = await response.json();
+    return normalizePortablePosts(payload);
+}
+
 function getImageSources(post) {
     if (!post || post.mediaKind !== 'image') {
         return [];
@@ -150,6 +199,8 @@ function renderDashboardPosts(posts, feedElement, emptyStateElement, onRemovePos
                 mediaElement.className = 'dashboard-post__media';
                 mediaElement.src = imageSources[0];
                 mediaElement.alt = post.title;
+                mediaElement.loading = 'lazy';
+                mediaElement.decoding = 'async';
             } else {
                 const wrapper = document.createElement('div');
                 wrapper.className = 'dashboard-post__grid-wrap';
@@ -168,6 +219,8 @@ function renderDashboardPosts(posts, feedElement, emptyStateElement, onRemovePos
                     image.className = 'dashboard-post__grid-image';
                     image.src = source;
                     image.alt = `${post.title} image ${index + 1}`;
+                    image.loading = 'lazy';
+                    image.decoding = 'async';
                     tile.appendChild(image);
 
                     if (hiddenCount > 0 && index === visibleImages.length - 1) {
@@ -365,7 +418,7 @@ window.addEventListener('DOMContentLoaded', () => {
     };
 
     const handleRemovePost = async postId => {
-        if (!window.confirm('Remove this gallery item?')) {
+        if (!window.confirm('Delete this post?')) {
             return;
         }
 
@@ -410,6 +463,13 @@ window.addEventListener('DOMContentLoaded', () => {
         usingApi = await isApiAvailable();
 
         if (!usingApi) {
+            const localDemoPosts = getDemoPosts();
+            if (!localDemoPosts.length) {
+                const staticPosts = await loadStaticSeedPosts().catch(() => []);
+                if (staticPosts.length) {
+                    saveDemoPosts(staticPosts);
+                }
+            }
             loginStatus.textContent = 'Demo mode: data is stored in this browser (GitHub Pages safe).';
         }
 

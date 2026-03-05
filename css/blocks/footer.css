@@ -37,12 +37,6 @@
     padding-inline: 1rem;
 }
 
-@media (min-width: 769px) {
-    .footer__container {
-        padding-right: clamp(4.5rem, 13vw, 10rem);
-    }
-}
-
 .footer__socials {
     display: flex;
     align-items: center;
@@ -87,7 +81,7 @@
     }
 
     .footer__container {
-        padding-right: 1rem;
+        padding-inline: 1rem;
     }
 
     .footer::before {

@@ -268,6 +268,8 @@ function renderPublicGalleryPosts(posts, feedElement, emptyStateElement, options
                 image.className = 'gallery-post__media gallery-post__media--image';
                 image.src = imageSources[0];
                 image.alt = post.title;
+                image.loading = 'lazy';
+                image.decoding = 'async';
                 image.addEventListener('click', () => {
                     openGalleryLightbox(imageSources, 0, post.title);
                 });
@@ -289,6 +291,8 @@ function renderPublicGalleryPosts(posts, feedElement, emptyStateElement, options
                     image.className = 'gallery-post__grid-image';
                     image.src = source;
                     image.alt = `${post.title} image ${index + 1}`;
+                    image.loading = 'lazy';
+                    image.decoding = 'async';
 
                     tile.appendChild(image);
 
@@ -344,6 +348,55 @@ function getDemoPosts() {
     } catch {
         return [];
     }
+}
+
+function isPortableImageSource(source) {
+    return typeof source === 'string' && source.trim() && !source.startsWith('/uploads/');
+}
+
+function normalizePortablePosts(posts) {
+    if (!Array.isArray(posts)) {
+        return [];
+    }
+
+    return posts.filter(post => {
+        if (!post || typeof post !== 'object') {
+            return false;
+        }
+
+        if (post.mediaKind === 'youtube') {
+            return typeof post.youtubeId === 'string' && post.youtubeId.trim().length > 0;
+        }
+
+        if (post.mediaKind !== 'image') {
+            return false;
+        }
+
+        return getImageSources(post).some(isPortableImageSource);
+    }).map(post => {
+        if (post.mediaKind !== 'image') {
+            return post;
+        }
+
+        const sources = getImageSources(post).filter(isPortableImageSource);
+        return {
+            ...post,
+            mediaUrls: sources,
+            mediaUrl: sources[0] || undefined,
+            mediaData: undefined
+        };
+    });
+}
+
+async function loadStaticSeedPosts() {
+    const response = await fetch('data/posts.json', { cache: 'no-store' });
+    if (!response.ok) {
+        throw new Error('Failed to load static seed posts');
+    }
+
+    const payload = await response.json();
+    const normalized = normalizePortablePosts(payload);
+    return normalized.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 }
 
 async function loadPublicGallery() {
@@ -464,7 +517,12 @@ async function loadPublicGallery() {
         hasMore = firstPage.hasMore;
     } catch {
         usingApi = false;
-        demoPosts = getDemoPosts().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        const localDemoPosts = getDemoPosts().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        if (localDemoPosts.length) {
+            demoPosts = localDemoPosts;
+        } else {
+            demoPosts = await loadStaticSeedPosts().catch(() => []);
+        }
         const firstPage = demoPosts.slice(0, PAGE_SIZE);
         renderPublicGalleryPosts(firstPage, feedElement, emptyStateElement);
         offset = firstPage.length;
