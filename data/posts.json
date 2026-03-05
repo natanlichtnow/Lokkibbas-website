@@ -1,31 +1,46 @@
 [
-	{
-		"id": "demo-roofing-project-2026-01",
-		"title": "Roof Replacement - Fort St. John",
-		"description": "Full shingle replacement completed with upgraded waterproofing underlayment.",
-		"mediaKind": "image",
-		"mediaUrls": [
-			"assets/roofing.jpg",
-			"assets/deck.jpg",
-			"assets/siding.png"
-		],
-		"mediaUrl": "assets/roofing.jpg",
-		"createdAt": "2026-02-15T17:30:00.000Z"
-	},
-	{
-		"id": "demo-decking-project-2026-02",
-		"title": "Vinyl Decking Install",
-		"description": "Duradek vinyl membrane install with sealed edge detailing for long-term protection.",
-		"mediaKind": "image",
-		"mediaUrl": "assets/decking.jpg",
-		"createdAt": "2026-02-08T16:10:00.000Z"
-	},
-	{
-		"id": "demo-siding-project-2026-03",
-		"title": "Siding Upgrade",
-		"description": "Exterior siding refresh finished with weather-resistant materials suited for Northern BC climate.",
-		"mediaKind": "image",
-		"mediaUrl": "assets/siding.jpg",
-		"createdAt": "2026-01-30T14:20:00.000Z"
-	}
+  {
+    "id": "f2e63097-f935-41f3-9fe0-0fa0883e1a2c",
+    "title": "This is a test",
+    "description": "Does this work",
+    "mediaKind": "image",
+    "mediaUrl": "/uploads/1772738175508-ed09b3f6-7aa7-4525-b59b-dc882b4b0635.jpg",
+    "mediaUrls": [
+      "/uploads/1772738175508-ed09b3f6-7aa7-4525-b59b-dc882b4b0635.jpg",
+      "/uploads/1772738175538-57fb3799-6efd-40b3-bffa-210eea1ccfce.jpg",
+      "/uploads/1772738175552-8bb8add0-1f95-46c2-88b5-0ee9a36d37ce.jpg",
+      "/uploads/1772738175565-3b564ddf-3ff3-413c-93e9-7f5d61aa41e9.jpg",
+      "/uploads/1772738175568-89bae551-238f-4657-b9dd-b7fba5429d0c.jpg"
+    ],
+    "createdAt": "2026-03-05T19:16:15.571Z"
+  },
+  {
+    "id": "demo-roofing-project-2026-01",
+    "title": "Roof Replacement - Fort St. John",
+    "description": "Full shingle replacement completed with upgraded waterproofing underlayment.",
+    "mediaKind": "image",
+    "mediaUrls": [
+      "assets/roofing.jpg",
+      "assets/deck.jpg",
+      "assets/siding.png"
+    ],
+    "mediaUrl": "assets/roofing.jpg",
+    "createdAt": "2026-02-15T17:30:00.000Z"
+  },
+  {
+    "id": "demo-decking-project-2026-02",
+    "title": "Vinyl Decking Install",
+    "description": "Duradek vinyl membrane install with sealed edge detailing for long-term protection.",
+    "mediaKind": "image",
+    "mediaUrl": "assets/decking.jpg",
+    "createdAt": "2026-02-08T16:10:00.000Z"
+  },
+  {
+    "id": "demo-siding-project-2026-03",
+    "title": "Siding Upgrade",
+    "description": "Exterior siding refresh finished with weather-resistant materials suited for Northern BC climate.",
+    "mediaKind": "image",
+    "mediaUrl": "assets/siding.jpg",
+    "createdAt": "2026-01-30T14:20:00.000Z"
+  }
 ]

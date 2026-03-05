@@ -253,93 +253,59 @@ function renderPublicGalleryPosts(posts, feedElement, emptyStateElement, options
                 return;
             }
 
-            const carousel = document.createElement('div');
-            carousel.className = 'gallery-post__carousel';
+            if (imageSources.length === 1) {
+                const image = document.createElement('img');
+                image.className = 'gallery-post__media gallery-post__media--image';
+                image.src = imageSources[0];
+                image.alt = post.title;
+                image.addEventListener('click', () => {
+                    openGalleryLightbox(imageSources, 0, post.title);
+                });
+                mediaElement = image;
+            } else {
+                const grid = document.createElement('div');
+                grid.className = 'gallery-post__grid';
 
-            const image = document.createElement('img');
-            image.className = 'gallery-post__media gallery-post__media--image';
-            image.alt = post.title;
+                const visibleImages = imageSources.slice(0, 4);
+                const hiddenCount = Math.max(imageSources.length - visibleImages.length, 0);
 
-            const count = document.createElement('span');
-            count.className = 'gallery-post__carousel-count';
+                visibleImages.forEach((source, index) => {
+                    const tile = document.createElement('button');
+                    tile.className = 'gallery-post__grid-item';
+                    tile.type = 'button';
+                    tile.setAttribute('aria-label', `Open image ${index + 1} of ${imageSources.length}`);
 
-            let currentIndex = 0;
+                    const image = document.createElement('img');
+                    image.className = 'gallery-post__grid-image';
+                    image.src = source;
+                    image.alt = `${post.title} image ${index + 1}`;
 
-            const setImage = index => {
-                currentIndex = (index + imageSources.length) % imageSources.length;
-                image.src = imageSources[currentIndex];
-                count.textContent = imageSources.length > 1 ? `${currentIndex + 1} / ${imageSources.length}` : '';
-            };
+                    tile.appendChild(image);
 
-            image.addEventListener('click', () => {
-                openGalleryLightbox(imageSources, currentIndex, post.title);
-            });
+                    if (hiddenCount > 0 && index === visibleImages.length - 1) {
+                        const moreBadge = document.createElement('span');
+                        moreBadge.className = 'gallery-post__grid-more';
+                        moreBadge.textContent = `+${hiddenCount}`;
+                        tile.appendChild(moreBadge);
+                    }
 
-            carousel.appendChild(image);
+                    tile.addEventListener('click', () => {
+                        openGalleryLightbox(imageSources, index, post.title);
+                    });
 
-            if (imageSources.length > 1) {
-                let touchStartX = 0;
-                let touchStartY = 0;
-                const minSwipeDistance = 40;
-                const maxVerticalDrift = 80;
-
-                const prevButton = document.createElement('button');
-                prevButton.className = 'gallery-post__carousel-nav gallery-post__carousel-nav--prev';
-                prevButton.type = 'button';
-                prevButton.setAttribute('aria-label', 'Previous image');
-                prevButton.textContent = '‹';
-                prevButton.addEventListener('click', event => {
-                    event.stopPropagation();
-                    setImage(currentIndex - 1);
+                    grid.appendChild(tile);
                 });
 
-                const nextButton = document.createElement('button');
-                nextButton.className = 'gallery-post__carousel-nav gallery-post__carousel-nav--next';
-                nextButton.type = 'button';
-                nextButton.setAttribute('aria-label', 'Next image');
-                nextButton.textContent = '›';
-                nextButton.addEventListener('click', event => {
-                    event.stopPropagation();
-                    setImage(currentIndex + 1);
-                });
+                const totalLabel = document.createElement('p');
+                totalLabel.className = 'gallery-post__grid-count';
+                totalLabel.textContent = `${imageSources.length} photos`;
 
-                carousel.addEventListener('touchstart', event => {
-                    const touch = event.changedTouches[0];
-                    if (!touch) {
-                        return;
-                    }
-
-                    touchStartX = touch.clientX;
-                    touchStartY = touch.clientY;
-                }, { passive: true });
-
-                carousel.addEventListener('touchend', event => {
-                    const touch = event.changedTouches[0];
-                    if (!touch) {
-                        return;
-                    }
-
-                    const deltaX = touch.clientX - touchStartX;
-                    const deltaY = touch.clientY - touchStartY;
-
-                    if (Math.abs(deltaX) < minSwipeDistance || Math.abs(deltaY) > maxVerticalDrift) {
-                        return;
-                    }
-
-                    if (deltaX < 0) {
-                        setImage(currentIndex + 1);
-                    } else {
-                        setImage(currentIndex - 1);
-                    }
-                }, { passive: true });
-
-                carousel.appendChild(prevButton);
-                carousel.appendChild(nextButton);
-                carousel.appendChild(count);
+                const wrapper = document.createElement('div');
+                wrapper.className = 'gallery-post__grid-wrap';
+                wrapper.appendChild(grid);
+                wrapper.appendChild(totalLabel);
+                mediaElement = wrapper;
             }
-
-            setImage(0);
-            mediaElement = carousel;
         } else {
             return;
         }
