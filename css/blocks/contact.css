@@ -1,7 +1,11 @@
 .contact {
-    padding: 4rem 1rem;
+    padding: 2rem 1rem 4rem;
     background-color: var(--color-surface);
     text-align: center;
+}
+
+.contact-page .contact {
+    padding: 4rem 1rem;
 }
 .contact__title {
     font-size: 2rem;
