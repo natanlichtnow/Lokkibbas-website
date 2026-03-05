@@ -179,6 +179,11 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 function openVideoModal() {
+    const activeVideo = document.getElementById('mainVideo');
+    const activeVideoSrc = activeVideo && activeVideo.src
+        ? activeVideo.src
+        : 'https://www.youtube.com/embed/HvuPNqTCrh0?autoplay=1&mute=1&loop=1&playlist=HvuPNqTCrh0&controls=0&rel=0&vq=hd720&modestbranding=1&iv_load_policy=3&disablekb=1&playsinline=1&fs=0';
+
     // create modal container
     const modal = document.createElement('div');
     modal.className = 'video-modal';
@@ -195,7 +200,7 @@ function openVideoModal() {
     inner.appendChild(closeBtn);
 
     const video = document.createElement('iframe');
-    video.src = 'https://www.youtube.com/embed/HvuPNqTCrh0?autoplay=1&mute=1&loop=1&playlist=HvuPNqTCrh0&controls=0&rel=0&vq=hd720&modestbranding=1&iv_load_policy=3&disablekb=1&playsinline=1&fs=0';
+    video.src = activeVideoSrc;
     video.title = 'Moores Waterproofing project video';
     video.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
     video.referrerPolicy = 'strict-origin-when-cross-origin';

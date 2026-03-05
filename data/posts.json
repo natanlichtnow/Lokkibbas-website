@@ -1,1 +1,31 @@
-[]
+[
+	{
+		"id": "demo-roofing-project-2026-01",
+		"title": "Roof Replacement - Fort St. John",
+		"description": "Full shingle replacement completed with upgraded waterproofing underlayment.",
+		"mediaKind": "image",
+		"mediaUrls": [
+			"assets/roofing.jpg",
+			"assets/deck.jpg",
+			"assets/siding.png"
+		],
+		"mediaUrl": "assets/roofing.jpg",
+		"createdAt": "2026-02-15T17:30:00.000Z"
+	},
+	{
+		"id": "demo-decking-project-2026-02",
+		"title": "Vinyl Decking Install",
+		"description": "Duradek vinyl membrane install with sealed edge detailing for long-term protection.",
+		"mediaKind": "image",
+		"mediaUrl": "assets/decking.jpg",
+		"createdAt": "2026-02-08T16:10:00.000Z"
+	},
+	{
+		"id": "demo-siding-project-2026-03",
+		"title": "Siding Upgrade",
+		"description": "Exterior siding refresh finished with weather-resistant materials suited for Northern BC climate.",
+		"mediaKind": "image",
+		"mediaUrl": "assets/siding.jpg",
+		"createdAt": "2026-01-30T14:20:00.000Z"
+	}
+]

@@ -67,6 +67,19 @@ function saveDemoPosts(posts) {
     localStorage.setItem(DEMO_GALLERY_STORAGE_KEY, JSON.stringify(posts));
 }
 
+function getImageSources(post) {
+    if (!post || post.mediaKind !== 'image') {
+        return [];
+    }
+
+    if (Array.isArray(post.mediaUrls) && post.mediaUrls.length) {
+        return post.mediaUrls.filter(source => typeof source === 'string' && source.trim());
+    }
+
+    const fallbackSource = post.mediaUrl || post.mediaData;
+    return fallbackSource ? [fallbackSource] : [];
+}
+
 async function isApiAvailable() {
     try {
         const response = await fetch('/api/posts', { cache: 'no-store' });
@@ -112,6 +125,7 @@ function renderDashboardPosts(posts, feedElement, emptyStateElement, onRemovePos
         meta.textContent = new Date(post.createdAt).toLocaleString();
 
         let mediaElement;
+        let mediaCountElement;
         if (post.mediaKind === 'youtube' && post.youtubeId) {
             mediaElement = document.createElement('iframe');
             mediaElement.className = 'dashboard-post__media dashboard-post__media--youtube';
@@ -120,12 +134,24 @@ function renderDashboardPosts(posts, feedElement, emptyStateElement, onRemovePos
             mediaElement.setAttribute('allowfullscreen', '');
             mediaElement.setAttribute('loading', 'lazy');
             mediaElement.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
-        } else if (post.mediaKind === 'image' && (post.mediaUrl || post.mediaData)) {
-            const imageSource = post.mediaUrl || post.mediaData;
+        } else if (post.mediaKind === 'image') {
+            const imageSources = getImageSources(post);
+            const imageSource = imageSources[0];
+
+            if (!imageSource) {
+                return;
+            }
+
             mediaElement = document.createElement('img');
             mediaElement.className = 'dashboard-post__media';
             mediaElement.src = imageSource;
             mediaElement.alt = post.title;
+
+            if (imageSources.length > 1) {
+                mediaCountElement = document.createElement('p');
+                mediaCountElement.className = 'dashboard-post__meta';
+                mediaCountElement.textContent = `${imageSources.length} photos in this post`;
+            }
         }
 
         const description = document.createElement('p');
@@ -136,6 +162,9 @@ function renderDashboardPosts(posts, feedElement, emptyStateElement, onRemovePos
         article.appendChild(meta);
         if (mediaElement) {
             article.appendChild(mediaElement);
+        }
+        if (mediaCountElement) {
+            article.appendChild(mediaCountElement);
         }
         article.appendChild(description);
         feedElement.appendChild(article);
@@ -296,16 +325,18 @@ window.addEventListener('DOMContentLoaded', () => {
         const title = String(formData.get('title') || '').trim();
         const description = String(formData.get('description') || '').trim();
         const youtubeUrl = String(formData.get('youtubeUrl') || '').trim();
-        const imageFile = formData.get('imageFile');
-        const hasFile = imageFile instanceof File && imageFile.size > 0;
+        const imageFiles = formData
+            .getAll('imageFiles')
+            .filter(value => value instanceof File && value.size > 0);
+        const hasFiles = imageFiles.length > 0;
 
         if (!title || !description) {
             postStatus.textContent = 'Title and description are required.';
             return;
         }
 
-        if ((youtubeUrl && hasFile) || (!youtubeUrl && !hasFile)) {
-            postStatus.textContent = 'Use exactly one media type: YouTube URL or uploaded photo.';
+        if ((youtubeUrl && hasFiles) || (!youtubeUrl && !hasFiles)) {
+            postStatus.textContent = 'Use exactly one media type: YouTube URL or uploaded photo(s).';
             return;
         }
 
@@ -317,8 +348,10 @@ window.addEventListener('DOMContentLoaded', () => {
             requestForm.set('youtubeUrl', youtubeUrl);
         }
 
-        if (hasFile) {
-            requestForm.set('imageFile', imageFile);
+        if (hasFiles) {
+            imageFiles.forEach(file => {
+                requestForm.append('imageFiles', file);
+            });
         }
 
         postStatus.textContent = 'Publishing...';
@@ -345,19 +378,22 @@ window.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
 
-                let mediaData = '';
-                if (hasFile) {
-                    if (!imageFile.type.startsWith('image/')) {
-                        postStatus.textContent = 'Please upload a valid image file.';
-                        return;
-                    }
+                let mediaDataList = [];
+                if (hasFiles) {
+                    for (const imageFile of imageFiles) {
+                        if (!imageFile.type.startsWith('image/')) {
+                            postStatus.textContent = 'Please upload valid image files only.';
+                            return;
+                        }
 
-                    if (imageFile.size > DEMO_MAX_FILE_SIZE) {
-                        postStatus.textContent = 'Image is too large. Use files under 12MB.';
-                        return;
-                    }
+                        if (imageFile.size > DEMO_MAX_FILE_SIZE) {
+                            postStatus.textContent = 'Each image must be under 12MB.';
+                            return;
+                        }
 
-                    mediaData = await readFileAsDataUrl(imageFile);
+                        const mediaData = await readFileAsDataUrl(imageFile);
+                        mediaDataList.push(mediaData);
+                    }
                 }
 
                 const demoPost = {
@@ -366,7 +402,8 @@ window.addEventListener('DOMContentLoaded', () => {
                     description,
                     mediaKind: youtubeId ? 'youtube' : 'image',
                     youtubeId: youtubeId || undefined,
-                    mediaData: mediaData || undefined,
+                    mediaUrls: mediaDataList.length ? mediaDataList : undefined,
+                    mediaData: mediaDataList[0] || undefined,
                     createdAt: new Date().toISOString()
                 };
 

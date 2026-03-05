@@ -216,34 +216,53 @@ app.get('/api/posts', async (_req, res) => {
     try {
         const posts = await readPosts();
         const sorted = [...posts].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        return res.json(sorted);
+
+        const rawLimit = Number(_req.query.limit);
+        const rawOffset = Number(_req.query.offset);
+        const hasPaginationQuery = Number.isFinite(rawLimit) || Number.isFinite(rawOffset);
+
+        if (!hasPaginationQuery) {
+            return res.json(sorted);
+        }
+
+        const limit = Math.min(Math.max(Number.isFinite(rawLimit) ? Math.floor(rawLimit) : 12, 1), 50);
+        const offset = Math.max(Number.isFinite(rawOffset) ? Math.floor(rawOffset) : 0, 0);
+        const pagedPosts = sorted.slice(offset, offset + limit);
+
+        return res.json({
+            posts: pagedPosts,
+            hasMore: offset + pagedPosts.length < sorted.length,
+            total: sorted.length,
+            offset,
+            limit
+        });
     } catch {
         return res.status(500).json({ error: 'Failed to load posts.' });
     }
 });
 
-app.post('/api/posts', requireAuth, upload.single('imageFile'), async (req, res) => {
+app.post('/api/posts', requireAuth, upload.array('imageFiles', 20), async (req, res) => {
     try {
         const title = typeof req.body.title === 'string' ? req.body.title.trim() : '';
         const description = typeof req.body.description === 'string' ? req.body.description.trim() : '';
         const youtubeUrl = typeof req.body.youtubeUrl === 'string' ? req.body.youtubeUrl.trim() : '';
-        const file = req.file;
+        const files = Array.isArray(req.files) ? req.files : [];
 
         if (!title || !description) {
-            if (file) {
-                await fs.unlink(file.path).catch(() => undefined);
+            if (files.length) {
+                await Promise.all(files.map(file => fs.unlink(file.path).catch(() => undefined)));
             }
             return res.status(400).json({ error: 'Title and description are required.' });
         }
 
         const usingYoutube = Boolean(youtubeUrl);
-        const usingImage = Boolean(file);
+        const usingImage = files.length > 0;
 
         if ((usingYoutube && usingImage) || (!usingYoutube && !usingImage)) {
-            if (file) {
-                await fs.unlink(file.path).catch(() => undefined);
+            if (files.length) {
+                await Promise.all(files.map(file => fs.unlink(file.path).catch(() => undefined)));
             }
-            return res.status(400).json({ error: 'Provide exactly one media type: YouTube URL or uploaded image.' });
+            return res.status(400).json({ error: 'Provide exactly one media type: YouTube URL or uploaded image(s).' });
         }
 
         let post;
@@ -262,12 +281,15 @@ app.post('/api/posts', requireAuth, upload.single('imageFile'), async (req, res)
                 createdAt: new Date().toISOString()
             };
         } else {
+            const mediaUrls = files.map(file => `/uploads/${file.filename}`);
+
             post = {
                 id: crypto.randomUUID(),
                 title,
                 description,
                 mediaKind: 'image',
-                mediaUrl: `/uploads/${file.filename}`,
+                mediaUrl: mediaUrls[0],
+                mediaUrls,
                 createdAt: new Date().toISOString()
             };
         }
@@ -278,8 +300,9 @@ app.post('/api/posts', requireAuth, upload.single('imageFile'), async (req, res)
 
         return res.status(201).json(post);
     } catch (error) {
-        if (req.file) {
-            await fs.unlink(req.file.path).catch(() => undefined);
+        const files = Array.isArray(req.files) ? req.files : [];
+        if (files.length) {
+            await Promise.all(files.map(file => fs.unlink(file.path).catch(() => undefined)));
         }
         if (error instanceof multer.MulterError) {
             return res.status(400).json({ error: error.message });
@@ -353,9 +376,21 @@ app.delete('/api/posts/:id', requireAuth, async (req, res) => {
         const remainingPosts = posts.filter(post => post.id !== postId);
         await writePosts(remainingPosts);
 
-        if (postToDelete.mediaKind === 'image' && typeof postToDelete.mediaUrl === 'string') {
-            const filePath = path.join(rootDir, postToDelete.mediaUrl.replace(/^\//, '').replace(/\//g, path.sep));
-            await fs.unlink(filePath).catch(() => undefined);
+        if (postToDelete.mediaKind === 'image') {
+            const sources = Array.isArray(postToDelete.mediaUrls)
+                ? postToDelete.mediaUrls
+                : (typeof postToDelete.mediaUrl === 'string' ? [postToDelete.mediaUrl] : []);
+
+            const uniqueSources = [...new Set(sources.filter(source => typeof source === 'string'))];
+
+            await Promise.all(uniqueSources.map(async source => {
+                if (!source.startsWith('/uploads/')) {
+                    return;
+                }
+
+                const filePath = path.join(rootDir, source.replace(/^\//, '').replace(/\//g, path.sep));
+                await fs.unlink(filePath).catch(() => undefined);
+            }));
         }
 
         return res.json({ success: true });

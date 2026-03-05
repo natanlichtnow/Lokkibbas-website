@@ -196,6 +196,10 @@
         transition: opacity 0.25s ease, transform 0.25s ease, visibility 0s linear 0.25s;
     }
 
+    .header--scrolled .header__nav-wrapper {
+        top: 3.85rem;
+    }
+
     :root[data-theme="light"] .header__nav-wrapper {
         background-color: rgba(233, 238, 246, 0.72);
     }
@@ -251,6 +255,10 @@
 }
 
 @media (max-width: 768px) {
+    .header {
+        position: sticky;
+    }
+
     .header__container {
         justify-content: flex-end;
     }
@@ -265,8 +273,9 @@
     }
 
     .header__menu-toggle {
-        position: fixed;
-        top: 0.9rem;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
         left: 0.9rem;
         z-index: 1300;
         margin-left: 0;
@@ -279,5 +288,9 @@
         right: auto;
         top: 4.15rem;
         transform-origin: top left;
+    }
+
+    .header--scrolled .header__nav-wrapper {
+        top: 3.7rem;
     }
 }
