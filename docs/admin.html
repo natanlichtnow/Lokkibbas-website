@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel da Oficina - Laudos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,500;0,700;1,400;1,600;1,700&family=Saira+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/main.css" />
+</head>
+<body>
+  <main class="layout">
+    <header class="topbar no-print">
+      <div>
+        <h1 class="topbar__title">Painel da Oficina</h1>
+        <p class="topbar__subtitle">Preenchimento em tempo real e protegido por autenticacao</p>
+      </div>
+      <div class="topbar__actions">
+        <button class="button" type="button" id="download-pdf" disabled>Baixar PDF</button>
+        <a class="button button--ghost" href="./index.html">Consulta Publica</a>
+      </div>
+    </header>
+
+    <section class="panel no-print" id="login-panel">
+      <h2 class="panel__title">Login protegido</h2>
+      <form id="login-form" class="panel__row">
+        <input class="input" type="text" id="username" placeholder="Usuario" required />
+        <input class="input" type="password" id="password" placeholder="Senha" required />
+        <button class="button" type="submit">Entrar</button>
+      </form>
+      <div class="panel__status" id="login-status"></div>
+      <p class="panel__status">Demo: usuario <strong>kauitooficina</strong> e senha <strong>4205169</strong></p>
+    </section>
+
+    <section class="panel hidden no-print" id="editor-panel">
+      <h2 class="panel__title">Abrir ou criar laudo por serial</h2>
+      <div class="panel__row">
+        <input class="input" type="text" id="editor-serial" placeholder="Numero de serie" />
+        <button class="button" type="button" id="load-report">Carregar</button>
+        <button class="button button--ghost" type="button" id="logout">Sair</button>
+      </div>
+      <div class="panel__status" id="editor-status"></div>
+    </section>
+
+    <form class="report hidden" id="admin-form" autocomplete="off">
+      <article class="report-sheet">
+        <div class="report-sheet__corner" aria-hidden="true"></div>
+        <header class="report-sheet__header">
+          <h2 class="report-sheet__title">Dados Gerais</h2>
+          <span class="report-sheet__tag">Laudo de Inspecao</span>
+        </header>
+
+        <div class="report-grid report-grid--dados">
+          <div class="report-grid__item report-grid__item--w8"><label class="report-field"><span class="report-field__label">Proprietario</span><input class="report-field__control" type="text" data-field="ownerName" /></label></div>
+          <div class="report-grid__item report-grid__item--w4"><label class="report-field"><span class="report-field__label">Fone</span><input class="report-field__control" type="text" data-field="phone" /></label></div>
+          <div class="report-grid__item report-grid__item--full"><label class="report-field"><span class="report-field__label">Email</span><input class="report-field__control" type="email" data-field="email" /></label></div>
+          <div class="report-grid__item report-grid__item--w6"><label class="report-field"><span class="report-field__label">Equip.</span><input class="report-field__control" type="text" data-field="equipment" /></label></div>
+          <div class="report-grid__item report-grid__item--w3"><label class="report-field"><span class="report-field__label">Serial</span><input class="report-field__control" type="text" data-field="serial" readonly /></label></div>
+          <div class="report-grid__item report-grid__item--w3"><label class="report-field"><span class="report-field__label">Fabric.</span><input class="report-field__control" type="text" data-field="manufactureDate" placeholder="12/2023" /></label></div>
+          <div class="report-grid__item report-grid__item--full"><label class="report-field"><span class="report-field__label">Status da manutencao</span><select class="report-field__control" data-field="maintenanceStatus"><option value="Em manutencao">Em manutencao</option><option value="Finalizada">Finalizada</option></select></label></div>
+          <div class="report-grid__item report-grid__item--w6"><label class="report-field"><span class="report-field__label">Cor Extradorso</span><input class="report-field__control" type="text" data-field="extradorsoColor" /></label></div>
+          <div class="report-grid__item report-grid__item--w6"><label class="report-field"><span class="report-field__label">Cor Intradorso</span><input class="report-field__control" type="text" data-field="intradorsoColor" /></label></div>
+          <div class="report-grid__item report-grid__item--w6"><label class="report-field"><span class="report-field__label">Data da Inspecao</span><input class="report-field__control" type="date" data-field="inspectionDate" /></label></div>
+          <div class="report-grid__item report-grid__item--w6"><label class="report-field"><span class="report-field__label">Proxima Inspecao</span><input class="report-field__control" type="date" data-field="nextInspectionDate" /></label></div>
+        </div>
+
+        <h3 class="report-section__title">Teste de Porosidade</h3>
+        <div class="porosity-layout">
+          <div class="wing-wrap">
+            <span class="wing-wrap__label">Extradorso</span>
+            <svg class="wing-wrap__svg" viewBox="0 0 760 320" aria-label="Grafico de porosidade">
+              <path d="M48 252 C150 52, 610 52, 712 252" class="wing-arc wing-arc--top" />
+              <path d="M48 252 C150 102, 610 102, 712 252" class="wing-arc wing-arc--body" />
+              <path d="M48 252 C150 84, 610 84, 712 252" class="wing-arc wing-arc--inner" />
+              <line x1="178" y1="96" x2="178" y2="165" class="wing-measure" />
+              <line x1="324" y1="66" x2="324" y2="152" class="wing-measure" />
+              <line x1="436" y1="76" x2="436" y2="154" class="wing-measure" />
+              <line x1="598" y1="126" x2="598" y2="182" class="wing-measure" />
+              <text x="154" y="86" class="wing-value" data-porosity-node="porosityCenterLeft">-</text>
+              <text x="300" y="58" class="wing-value" data-porosity-node="porosityCenter">-</text>
+              <text x="412" y="68" class="wing-value" data-porosity-node="porosityCenterRight">-</text>
+              <text x="572" y="119" class="wing-value" data-porosity-node="porosityRight">-</text>
+              <text x="42" y="170" class="wing-value" data-porosity-node="porosityLeft">-</text>
+              <text x="340" y="274" class="wing-value" data-porosity-node="porosityAverage">-</text>
+            </svg>
+            <span class="wing-wrap__avg">Media -</span>
+          </div>
+          <aside class="porosity-card">
+            <h4 class="porosity-card__title">Parametros de porosidade JDC</h4>
+            <ul class="porosity-card__list">
+              <li class="porosity-card__item">25 seg <em>(Nao recomendado uso)</em></li>
+              <li class="porosity-card__item">25 a 50 seg <em>(Muito usado, mas ainda voavel)</em></li>
+              <li class="porosity-card__item">50 a 100 seg <em>(Usado, Voavel)</em></li>
+              <li class="porosity-card__item">100 a 200 seg <em>(Pouco usado, Semi novo)</em></li>
+              <li class="porosity-card__item porosity-card__item--ok">+200 seg <em>(Excelente, Novo)</em></li>
+            </ul>
+          </aside>
+        </div>
+
+        <div class="report-grid report-grid--porosity-inputs no-print">
+          <div class="report-grid__item report-grid__item--w4"><label class="report-field"><span class="report-field__label">Porosidade Esq.</span><input class="report-field__control" type="number" step="0.1" data-field="porosityLeft" /></label></div>
+          <div class="report-grid__item report-grid__item--w4"><label class="report-field"><span class="report-field__label">Centro Esq.</span><input class="report-field__control" type="number" step="0.1" data-field="porosityCenterLeft" /></label></div>
+          <div class="report-grid__item report-grid__item--w4"><label class="report-field"><span class="report-field__label">Centro</span><input class="report-field__control" type="number" step="0.1" data-field="porosityCenter" /></label></div>
+          <div class="report-grid__item report-grid__item--w4"><label class="report-field"><span class="report-field__label">Centro Dir.</span><input class="report-field__control" type="number" step="0.1" data-field="porosityCenterRight" /></label></div>
+          <div class="report-grid__item report-grid__item--w4"><label class="report-field"><span class="report-field__label">Direita</span><input class="report-field__control" type="number" step="0.1" data-field="porosityRight" /></label></div>
+          <div class="report-grid__item report-grid__item--w4"><label class="report-field"><span class="report-field__label">Media</span><input class="report-field__control" type="number" step="0.1" data-field="porosityAverage" readonly /></label></div>
+        </div>
+
+        <h3 class="report-section__title">Check Geral Tirantes</h3>
+        <div class="report-grid">
+          <div class="report-grid__item report-grid__item--w3"><label class="report-field"><span class="report-field__label">Tirante A</span><input class="report-field__control" type="text" data-field="strapA" /></label></div>
+          <div class="report-grid__item report-grid__item--w3"><label class="report-field"><span class="report-field__label">Tirante B</span><input class="report-field__control" type="text" data-field="strapB" /></label></div>
+          <div class="report-grid__item report-grid__item--w3"><label class="report-field"><span class="report-field__label">Tirante C</span><input class="report-field__control" type="text" data-field="strapC" /></label></div>
+          <div class="report-grid__item report-grid__item--w3"><label class="report-field"><span class="report-field__label">Tirante D</span><input class="report-field__control" type="text" data-field="strapD" /></label></div>
+          <div class="report-grid__item report-grid__item--full"><label class="report-field"><span class="report-field__label">Regulagem dos Tirantes</span><input class="report-field__control" type="text" data-field="strapRegulation" /></label></div>
+          <div class="report-grid__item report-grid__item--full"><label class="report-field"><span class="report-field__label">Troca dos Tirantes</span><input class="report-field__control" type="text" data-field="strapChange" /></label></div>
+          <div class="report-grid__item report-grid__item--w6"><label class="report-field"><span class="report-field__label">Mosquetinhos</span><input class="report-field__control" type="text" data-field="mosquetinhos" /></label></div>
+          <div class="report-grid__item report-grid__item--w6"><label class="report-field"><span class="report-field__label">Roldanas</span><input class="report-field__control" type="text" data-field="roldanas" /></label></div>
+          <div class="report-grid__item report-grid__item--w6"><label class="report-field"><span class="report-field__label">Magneticos</span><input class="report-field__control" type="text" data-field="magneticos" /></label></div>
+          <div class="report-grid__item report-grid__item--w6"><label class="report-field"><span class="report-field__label">Acelerador</span><input class="report-field__control" type="text" data-field="acelerador" /></label></div>
+        </div>
+        <div class="obs-area">
+          <span class="obs-area__label">Observacoes:</span>
+          <textarea class="obs-area__input" data-field="strapNotes"></textarea>
+        </div>
+
+        <footer class="report-footer">
+          <span class="report-footer__brand">OFICINA DE <strong>PARAPENTE</strong></span>
+          <span class="report-footer__site">voeventonorte.com.br</span>
+        </footer>
+        <p class="validation-note">Valide seu laudo digitando o numero de serie <strong data-serial-note>-</strong> no site da oficina.</p>
+      </article>
+
+      <article class="report-sheet">
+        <div class="report-sheet__corner" aria-hidden="true"></div>
+        <header class="report-sheet__header">
+          <h2 class="report-sheet__title">Check Geral Linhas</h2>
+          <span class="report-sheet__tag">Laudo de Inspecao</span>
+        </header>
+
+        <div class="report-grid report-grid--linhas">
+          <div class="report-grid__item report-grid__item--w8"><label class="report-field"><span class="report-field__label">Verificacao individual das linhas</span><input class="report-field__control" type="text" data-field="lineCheck" /></label></div>
+          <div class="report-grid__item report-grid__item--w4"><label class="report-field"><span class="report-field__label">Possuia trimagem</span><input class="report-field__control" type="text" data-field="lineTrim" /></label></div>
+          <div class="report-grid__item report-grid__item--full"><label class="report-field"><span class="report-field__label">Problema(s) localizado(s)</span><input class="report-field__control" type="text" data-field="lineIssues" /></label></div>
+          <div class="report-grid__item report-grid__item--w6"><label class="report-field"><span class="report-field__label">Troca de linha(s)</span><input class="report-field__control" type="text" data-field="lineSwap" /></label></div>
+          <div class="report-grid__item report-grid__item--w6"><label class="report-field"><span class="report-field__label">Carga</span><input class="report-field__control" type="text" data-field="lineLoad" /></label></div>
+          <div class="report-grid__item report-grid__item--full"><label class="report-field"><span class="report-field__label">Linha(s) trocada(s)</span><input class="report-field__control" type="text" data-field="lineSwapped" /></label></div>
+          <div class="report-grid__item report-grid__item--full"><label class="report-field"><span class="report-field__label">Simetria e trimagem</span><input class="report-field__control" type="text" data-field="lineSymmetry" /></label></div>
+        </div>
+        <div class="obs-area">
+          <span class="obs-area__label">Observacoes:</span>
+          <textarea class="obs-area__input" data-field="lineNotes"></textarea>
+        </div>
+
+        <h3 class="report-section__title">Check Geral Tecido</h3>
+        <div class="report-grid report-grid--tecido">
+          <div class="report-grid__item report-grid__item--full"><label class="report-field"><span class="report-field__label">Verificacao de costuras e estado geral do perfil</span><input class="report-field__control" type="text" data-field="tissueProfileCheck" /></label></div>
+          <div class="report-grid__item report-grid__item--full"><label class="report-field"><span class="report-field__label">Problema(s) localizado(s)</span><input class="report-field__control" type="text" data-field="tissueIssues1" /></label></div>
+          <div class="report-grid__item report-grid__item--w6"><label class="report-field"><span class="report-field__label">Extradorso</span><input class="report-field__control" type="text" data-field="tissueExtradorso" /></label></div>
+          <div class="report-grid__item report-grid__item--w6"><label class="report-field"><span class="report-field__label">Intradorso</span><input class="report-field__control" type="text" data-field="tissueIntradorso" /></label></div>
+          <div class="report-grid__item report-grid__item--full"><label class="report-field"><span class="report-field__label">Problema(s) localizado(s)</span><input class="report-field__control" type="text" data-field="tissueIssues2" /></label></div>
+          <div class="report-grid__item report-grid__item--full"><label class="report-field"><span class="report-field__label">Limpeza interna</span><input class="report-field__control" type="text" data-field="tissueCleaning" /></label></div>
+          <div class="report-grid__item report-grid__item--full"><label class="report-field"><span class="report-field__label">Problema(s) localizado(s)</span><input class="report-field__control" type="text" data-field="tissueIssues3" /></label></div>
+          <div class="report-grid__item report-grid__item--full"><label class="report-field"><span class="report-field__label">Teste resistencia do tecido</span><input class="report-field__control" type="text" data-field="tissueStrength" /></label></div>
+          <div class="report-grid__item report-grid__item--full"><label class="report-field"><span class="report-field__label">Problema(s) localizado(s)</span><input class="report-field__control" type="text" data-field="tissueIssues4" /></label></div>
+        </div>
+        <div class="obs-area">
+          <span class="obs-area__label">Observacoes:</span>
+          <textarea class="obs-area__input" data-field="tissueNotes"></textarea>
+        </div>
+
+        <section class="gallery no-print">
+          <h4 class="gallery__title">Galeria de reparos (nao vai para PDF)</h4>
+          <div class="gallery__upload">
+            <input class="input" type="file" id="gallery-file" accept="image/*" />
+            <input class="input" type="text" id="gallery-description" placeholder="Descricao do reparo desta foto" />
+            <button class="button" type="button" id="add-gallery-item">Adicionar foto</button>
+          </div>
+          <ul class="gallery__list" id="admin-gallery"></ul>
+        </section>
+
+        <footer class="report-footer">
+          <span class="report-footer__brand">OFICINA DE <strong>PARAPENTE</strong></span>
+          <span class="report-footer__site">voeventonorte.com.br</span>
+        </footer>
+        <p class="validation-note">Valide seu laudo digitando o numero de serie <strong data-serial-note>-</strong> no site da oficina.</p>
+      </article>
+    </form>
+  </main>
+
+  <div class="gallery-modal hidden" id="gallery-modal" role="dialog" aria-modal="true" aria-label="Visualizacao de imagem">
+    <div class="gallery-modal__backdrop" data-modal-close></div>
+    <div class="gallery-modal__content">
+      <button class="gallery-modal__close" type="button" id="gallery-modal-close" aria-label="Fechar">x</button>
+      <img class="gallery-modal__image" id="gallery-modal-image" alt="Imagem ampliada" />
+      <p class="gallery-modal__caption" id="gallery-modal-caption"></p>
+    </div>
+  </div>
+
+  <script src="./js/demo-store.js" defer></script>
+  <script src="./js/admin-app.js" defer></script>
+</body>
+</html>

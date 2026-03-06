@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Consulta de Laudo - Oficina de Parapente</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,500;0,700;1,400;1,600;1,700&family=Saira+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/main.css" />
+</head>
+<body>
+  <main class="layout">
+    <header class="topbar no-print">
+      <div>
+        <h1 class="topbar__title">Consulta de Laudo de Revisao</h1>
+        <p class="topbar__subtitle">Versao publica somente leitura por numero de serie</p>
+      </div>
+      <div class="topbar__actions">
+        <button class="button" type="button" id="download-pdf" disabled>Baixar PDF</button>
+        <a class="button button--ghost" href="./admin.html">Area da Oficina</a>
+      </div>
+    </header>
+
+    <section class="panel no-print">
+      <h2 class="panel__title">Buscar por numero de serie</h2>
+      <form class="lookup" id="lookup-form">
+        <input class="input" type="text" id="serial-input" placeholder="Ex.: SGAKS10PE" required />
+        <button class="button" type="submit">Consultar</button>
+      </form>
+      <div class="authenticity hidden" id="auth-status"></div>
+      <div class="service-status hidden" id="service-status"></div>
+    </section>
+
+    <section class="report hidden" id="public-report">
+      <article class="report-sheet">
+        <div class="report-sheet__corner" aria-hidden="true"></div>
+        <header class="report-sheet__header">
+          <h2 class="report-sheet__title">Dados Gerais</h2>
+          <span class="report-sheet__tag">Laudo de Inspecao</span>
+        </header>
+
+        <div class="report-grid report-grid--dados">
+          <div class="report-grid__item report-grid__item--w8"><div class="report-field"><span class="report-field__label">Proprietario</span><span class="report-field__value" data-out="ownerName"></span></div></div>
+          <div class="report-grid__item report-grid__item--w4"><div class="report-field"><span class="report-field__label">Fone</span><span class="report-field__value" data-out="phone"></span></div></div>
+          <div class="report-grid__item report-grid__item--full"><div class="report-field"><span class="report-field__label">Email</span><span class="report-field__value" data-out="email"></span></div></div>
+          <div class="report-grid__item report-grid__item--w6"><div class="report-field"><span class="report-field__label">Equip.</span><span class="report-field__value" data-out="equipment"></span></div></div>
+          <div class="report-grid__item report-grid__item--w3"><div class="report-field"><span class="report-field__label">Serial</span><span class="report-field__value" data-out="serial"></span></div></div>
+          <div class="report-grid__item report-grid__item--w3"><div class="report-field"><span class="report-field__label">Fabric.</span><span class="report-field__value" data-out="manufactureDate"></span></div></div>
+          <div class="report-grid__item report-grid__item--full"><div class="report-field"><span class="report-field__label">Status da manutencao</span><span class="report-field__value" data-out="maintenanceStatus"></span></div></div>
+          <div class="report-grid__item report-grid__item--w6"><div class="report-field"><span class="report-field__label">Cor Extradorso</span><span class="report-field__value" data-out="extradorsoColor"></span></div></div>
+          <div class="report-grid__item report-grid__item--w6"><div class="report-field"><span class="report-field__label">Cor Intradorso</span><span class="report-field__value" data-out="intradorsoColor"></span></div></div>
+          <div class="report-grid__item report-grid__item--w6"><div class="report-field"><span class="report-field__label">Data da Inspecao</span><span class="report-field__value" data-out="inspectionDate"></span></div></div>
+          <div class="report-grid__item report-grid__item--w6"><div class="report-field"><span class="report-field__label">Proxima Inspecao</span><span class="report-field__value" data-out="nextInspectionDate"></span></div></div>
+        </div>
+
+        <h3 class="report-section__title">Teste de Porosidade</h3>
+        <div class="porosity-layout">
+          <div class="wing-wrap">
+            <span class="wing-wrap__label">Extradorso</span>
+            <svg class="wing-wrap__svg" viewBox="0 0 760 320" aria-label="Grafico de porosidade">
+              <path d="M48 252 C150 52, 610 52, 712 252" class="wing-arc wing-arc--top" />
+              <path d="M48 252 C150 102, 610 102, 712 252" class="wing-arc wing-arc--body" />
+              <path d="M48 252 C150 84, 610 84, 712 252" class="wing-arc wing-arc--inner" />
+              <line x1="178" y1="96" x2="178" y2="165" class="wing-measure" />
+              <line x1="324" y1="66" x2="324" y2="152" class="wing-measure" />
+              <line x1="436" y1="76" x2="436" y2="154" class="wing-measure" />
+              <line x1="598" y1="126" x2="598" y2="182" class="wing-measure" />
+              <text x="154" y="86" class="wing-value" data-porosity-node="porosityCenterLeft">-</text>
+              <text x="300" y="58" class="wing-value" data-porosity-node="porosityCenter">-</text>
+              <text x="412" y="68" class="wing-value" data-porosity-node="porosityCenterRight">-</text>
+              <text x="572" y="119" class="wing-value" data-porosity-node="porosityRight">-</text>
+              <text x="42" y="170" class="wing-value" data-porosity-node="porosityLeft">-</text>
+              <text x="340" y="274" class="wing-value" data-porosity-node="porosityAverage">-</text>
+            </svg>
+            <span class="wing-wrap__avg">Media -</span>
+          </div>
+          <aside class="porosity-card">
+            <h4 class="porosity-card__title">Parametros de porosidade JDC</h4>
+            <ul class="porosity-card__list">
+              <li class="porosity-card__item">25 seg <em>(Nao recomendado uso)</em></li>
+              <li class="porosity-card__item">25 a 50 seg <em>(Muito usado, mas ainda voavel)</em></li>
+              <li class="porosity-card__item">50 a 100 seg <em>(Usado, Voavel)</em></li>
+              <li class="porosity-card__item">100 a 200 seg <em>(Pouco usado, Semi novo)</em></li>
+              <li class="porosity-card__item porosity-card__item--ok">+200 seg <em>(Excelente, Novo)</em></li>
+            </ul>
+          </aside>
+        </div>
+
+        <h3 class="report-section__title">Check Geral Tirantes</h3>
+        <div class="report-grid">
+          <div class="report-grid__item report-grid__item--w3"><div class="report-field"><span class="report-field__label">Tirante A</span><span class="report-field__value" data-out="strapA"></span></div></div>
+          <div class="report-grid__item report-grid__item--w3"><div class="report-field"><span class="report-field__label">Tirante B</span><span class="report-field__value" data-out="strapB"></span></div></div>
+          <div class="report-grid__item report-grid__item--w3"><div class="report-field"><span class="report-field__label">Tirante C</span><span class="report-field__value" data-out="strapC"></span></div></div>
+          <div class="report-grid__item report-grid__item--w3"><div class="report-field"><span class="report-field__label">Tirante D</span><span class="report-field__value" data-out="strapD"></span></div></div>
+          <div class="report-grid__item report-grid__item--full"><div class="report-field"><span class="report-field__label">Regulagem dos Tirantes</span><span class="report-field__value" data-out="strapRegulation"></span></div></div>
+          <div class="report-grid__item report-grid__item--full"><div class="report-field"><span class="report-field__label">Troca dos Tirantes</span><span class="report-field__value" data-out="strapChange"></span></div></div>
+          <div class="report-grid__item report-grid__item--w6"><div class="report-field"><span class="report-field__label">Mosquetinhos</span><span class="report-field__value" data-out="mosquetinhos"></span></div></div>
+          <div class="report-grid__item report-grid__item--w6"><div class="report-field"><span class="report-field__label">Roldanas</span><span class="report-field__value" data-out="roldanas"></span></div></div>
+          <div class="report-grid__item report-grid__item--w6"><div class="report-field"><span class="report-field__label">Magneticos</span><span class="report-field__value" data-out="magneticos"></span></div></div>
+          <div class="report-grid__item report-grid__item--w6"><div class="report-field"><span class="report-field__label">Acelerador</span><span class="report-field__value" data-out="acelerador"></span></div></div>
+        </div>
+        <div class="obs-area">
+          <span class="obs-area__label">Observacoes:</span>
+          <p class="obs-area__text" data-out="strapNotes"></p>
+        </div>
+
+        <footer class="report-footer">
+          <span class="report-footer__brand">OFICINA DE <strong>PARAPENTE</strong></span>
+          <span class="report-footer__site">voeventonorte.com.br</span>
+        </footer>
+        <p class="validation-note">Valide seu laudo digitando o numero de serie <strong data-serial-note>-</strong> no site da oficina.</p>
+      </article>
+
+      <article class="report-sheet">
+        <div class="report-sheet__corner" aria-hidden="true"></div>
+        <header class="report-sheet__header">
+          <h2 class="report-sheet__title">Check Geral Linhas</h2>
+          <span class="report-sheet__tag">Laudo de Inspecao</span>
+        </header>
+
+        <div class="report-grid report-grid--linhas">
+          <div class="report-grid__item report-grid__item--w8"><div class="report-field"><span class="report-field__label">Verificacao individual das linhas</span><span class="report-field__value" data-out="lineCheck"></span></div></div>
+          <div class="report-grid__item report-grid__item--w4"><div class="report-field"><span class="report-field__label">Possuia trimagem</span><span class="report-field__value" data-out="lineTrim"></span></div></div>
+          <div class="report-grid__item report-grid__item--full"><div class="report-field"><span class="report-field__label">Problema(s) localizado(s)</span><span class="report-field__value" data-out="lineIssues"></span></div></div>
+          <div class="report-grid__item report-grid__item--w6"><div class="report-field"><span class="report-field__label">Troca de linha(s)</span><span class="report-field__value" data-out="lineSwap"></span></div></div>
+          <div class="report-grid__item report-grid__item--w6"><div class="report-field"><span class="report-field__label">Carga</span><span class="report-field__value" data-out="lineLoad"></span></div></div>
+          <div class="report-grid__item report-grid__item--full"><div class="report-field"><span class="report-field__label">Linha(s) trocada(s)</span><span class="report-field__value" data-out="lineSwapped"></span></div></div>
+          <div class="report-grid__item report-grid__item--full"><div class="report-field"><span class="report-field__label">Simetria e trimagem</span><span class="report-field__value" data-out="lineSymmetry"></span></div></div>
+        </div>
+        <div class="obs-area obs-area--center">
+          <span class="obs-area__label">Observacoes:</span>
+          <p class="obs-area__text" data-out="lineNotes"></p>
+        </div>
+
+        <h3 class="report-section__title">Check Geral Tecido</h3>
+        <div class="report-grid report-grid--tecido">
+          <div class="report-grid__item report-grid__item--full"><div class="report-field"><span class="report-field__label">Verificacao de costuras e estado geral do perfil</span><span class="report-field__value" data-out="tissueProfileCheck"></span></div></div>
+          <div class="report-grid__item report-grid__item--full"><div class="report-field"><span class="report-field__label">Problema(s) localizado(s)</span><span class="report-field__value" data-out="tissueIssues1"></span></div></div>
+          <div class="report-grid__item report-grid__item--w6"><div class="report-field"><span class="report-field__label">Extradorso</span><span class="report-field__value" data-out="tissueExtradorso"></span></div></div>
+          <div class="report-grid__item report-grid__item--w6"><div class="report-field"><span class="report-field__label">Intradorso</span><span class="report-field__value" data-out="tissueIntradorso"></span></div></div>
+          <div class="report-grid__item report-grid__item--full"><div class="report-field"><span class="report-field__label">Problema(s) localizado(s)</span><span class="report-field__value" data-out="tissueIssues2"></span></div></div>
+          <div class="report-grid__item report-grid__item--full"><div class="report-field"><span class="report-field__label">Limpeza interna</span><span class="report-field__value" data-out="tissueCleaning"></span></div></div>
+          <div class="report-grid__item report-grid__item--full"><div class="report-field"><span class="report-field__label">Problema(s) localizado(s)</span><span class="report-field__value" data-out="tissueIssues3"></span></div></div>
+          <div class="report-grid__item report-grid__item--full"><div class="report-field"><span class="report-field__label">Teste resistencia do tecido</span><span class="report-field__value" data-out="tissueStrength"></span></div></div>
+          <div class="report-grid__item report-grid__item--full"><div class="report-field"><span class="report-field__label">Problema(s) localizado(s)</span><span class="report-field__value" data-out="tissueIssues4"></span></div></div>
+        </div>
+        <div class="obs-area">
+          <span class="obs-area__label">Observacoes:</span>
+          <p class="obs-area__text" data-out="tissueNotes"></p>
+        </div>
+
+        <section class="gallery no-print">
+          <h4 class="gallery__title">Galeria de reparos</h4>
+          <ul class="gallery__list" id="public-gallery"></ul>
+        </section>
+
+        <footer class="report-footer">
+          <span class="report-footer__brand">OFICINA DE <strong>PARAPENTE</strong></span>
+          <span class="report-footer__site">voeventonorte.com.br</span>
+        </footer>
+        <p class="validation-note">Valide seu laudo digitando o numero de serie <strong data-serial-note>-</strong> no site da oficina.</p>
+      </article>
+    </section>
+  </main>
+
+  <div class="gallery-modal hidden" id="gallery-modal" role="dialog" aria-modal="true" aria-label="Visualizacao de imagem">
+    <div class="gallery-modal__backdrop" data-modal-close></div>
+    <div class="gallery-modal__content">
+      <button class="gallery-modal__close" type="button" id="gallery-modal-close" aria-label="Fechar">x</button>
+      <img class="gallery-modal__image" id="gallery-modal-image" alt="Imagem ampliada" />
+      <p class="gallery-modal__caption" id="gallery-modal-caption"></p>
+    </div>
+  </div>
+
+  <script src="./js/demo-store.js" defer></script>
+  <script src="./js/public-app.js" defer></script>
+</body>
+</html>
