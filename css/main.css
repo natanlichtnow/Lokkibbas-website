@@ -154,11 +154,25 @@ img {
     flex: 1;
 }
 
+.services-page {
+    background-color: var(--color-surface);
+}
+
 .page-title {
     text-align: center;
     font-size: 2.5rem;
     padding: 2rem 1rem 1rem;
     color: var(--color-text);
+}
+
+@media (min-width: 769px) {
+    .gallery-page .page-title {
+        padding-top: 16px;
+    }
+
+    body > .about {
+        padding-top: 24px;
+    }
 }
 
 @media (max-width: 1024px) {
@@ -185,8 +199,29 @@ img {
         padding: 1.4rem 0.75rem 0.75rem;
     }
 
+    .gallery-page .page-title {
+        padding-top: 12px;
+    }
+
+    .services-page .page-title {
+        padding-top: 30px;
+        padding-bottom: 0;
+    }
+
     .video-section {
-        height: min(300px, 70vw);
+        height: min(300px, 56.25vw);
+    }
+
+    .video-section iframe,
+    .video-section video {
+        inset: 0;
+        top: auto;
+        left: auto;
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+        transform: none;
+        display: block;
     }
 
     .faq-section__title {
