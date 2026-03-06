@@ -1,0 +1,280 @@
+:root {
+  --bg: #d5d9de;
+  --paper: #eceeef;
+  --ink: #5b6570;
+  --ink-soft: #7b848c;
+  --label: #6c757e;
+  --line: #a2a9af;
+  --accent: #ff7b00;
+  --corner: #58636d;
+  --ok: #2d7b2d;
+  --bad: #8e2f2f;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Barlow Condensed", sans-serif;
+  background: linear-gradient(145deg, #ebeef1, var(--bg) 45%, #bfc7cf);
+  color: var(--ink);
+}
+
+.layout {
+  max-width: 1050px;
+  margin: 0 auto;
+  padding: 20px 14px 50px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.topbar__title {
+  margin: 0;
+  font-family: "Saira Condensed", sans-serif;
+  font-style: italic;
+  text-transform: uppercase;
+  font-size: clamp(2rem, 4vw, 2.9rem);
+}
+
+.topbar__subtitle {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 1.2rem;
+}
+
+.panel {
+  background: #edf0f2;
+  border: 1px solid #d0d5da;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.panel--hidden {
+  display: none;
+}
+
+.panel__title {
+  margin: 0 0 8px;
+  font-family: "Saira Condensed", sans-serif;
+  font-style: italic;
+  text-transform: uppercase;
+  font-size: 1.8rem;
+}
+
+.panel__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.panel__status {
+  margin-top: 8px;
+  min-height: 24px;
+  font-style: italic;
+}
+
+.panel__hint {
+  margin: 8px 0 0;
+  color: var(--ink-soft);
+}
+
+.input,
+.button {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-family: inherit;
+  font-size: 1.15rem;
+}
+
+.input {
+  flex: 1;
+  min-width: 220px;
+}
+
+.button {
+  background: var(--accent);
+  color: #fff;
+  border-color: #ce6500;
+  cursor: pointer;
+  font-style: italic;
+  font-weight: 600;
+}
+
+.button--ghost {
+  background: var(--label);
+  border-color: #59626a;
+}
+
+.report {
+  display: grid;
+  gap: 18px;
+}
+
+.report--hidden {
+  display: none;
+}
+
+.sheet {
+  position: relative;
+  background: var(--paper);
+  border: 1px solid #d5d8db;
+  box-shadow: 0 16px 30px rgba(41, 47, 54, 0.22);
+  padding: 38px 40px 26px;
+  overflow: hidden;
+}
+
+.sheet__corner {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-top: 145px solid var(--accent);
+  border-left: 106px solid transparent;
+}
+
+.sheet__corner::before {
+  content: "";
+  position: absolute;
+  top: -145px;
+  left: -132px;
+  width: 0;
+  height: 0;
+  border-top: 68px solid var(--corner);
+  border-left: 52px solid transparent;
+}
+
+.sheet__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding-right: 80px;
+}
+
+.sheet__title {
+  margin: 0;
+  font-size: clamp(2.1rem, 3.7vw, 3.1rem);
+  text-transform: uppercase;
+  font-style: italic;
+  font-family: "Saira Condensed", sans-serif;
+}
+
+.sheet__tag {
+  font-style: italic;
+  font-size: 1.4rem;
+}
+
+.section-title {
+  margin: 24px 0 8px;
+  font-family: "Saira Condensed", sans-serif;
+  font-size: 2rem;
+  text-transform: uppercase;
+  font-style: italic;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.field {
+  grid-column: span 6;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  overflow: hidden;
+  background: #f4f5f6;
+}
+
+.field--full {
+  grid-column: 1 / -1;
+}
+
+.field__label {
+  background: var(--label);
+  color: #f4f5f6;
+  font-style: italic;
+  font-size: 1.45rem;
+  display: flex;
+  align-items: center;
+  padding: 4px 9px;
+  white-space: nowrap;
+}
+
+.field__value,
+.field__input {
+  background: #f4f5f6;
+  border: none;
+  width: 100%;
+  font-family: inherit;
+  font-size: 1.35rem;
+  font-style: italic;
+  color: var(--ink-soft);
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.field__input {
+  text-align: left;
+  justify-content: flex-start;
+}
+
+.field__input:focus {
+  outline: 2px solid #ffb87b;
+}
+
+.auth {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 9px 10px;
+  font-style: italic;
+  background: #f8f9fa;
+}
+
+.auth--ok {
+  border-color: var(--ok);
+  color: var(--ok);
+}
+
+.auth--bad {
+  border-color: var(--bad);
+  color: var(--bad);
+}
+
+@media (max-width: 900px) {
+  .sheet {
+    padding: 26px 12px 18px;
+  }
+
+  .sheet__header {
+    padding-right: 46px;
+  }
+
+  .field,
+  .field--full {
+    grid-column: 1 / -1;
+  }
+
+  .field__label,
+  .field__value,
+  .field__input {
+    font-size: 1.2rem;
+  }
+}

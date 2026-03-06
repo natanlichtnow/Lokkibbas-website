@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Demo Publica - Laudos de Parapente</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,500;0,700;1,400;1,600;1,700&family=Saira+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/demo.css" />
+</head>
+<body>
+  <main class="layout">
+    <header class="topbar">
+      <div>
+        <h1 class="topbar__title">Consulta Publica de Laudo</h1>
+        <p class="topbar__subtitle">Versao demonstrativa para GitHub Pages</p>
+      </div>
+      <a class="button button--ghost" href="./admin.html">Area da Oficina (Demo)</a>
+    </header>
+
+    <section class="panel">
+      <h2 class="panel__title">Buscar por numero de serie</h2>
+      <form id="lookup-form" class="panel__row">
+        <input class="input" type="text" id="serial" placeholder="Ex.: SGAKS10PE" required />
+        <button class="button" type="submit">Consultar</button>
+      </form>
+      <div id="status" class="panel__status"></div>
+    </section>
+
+    <section id="report" class="report report--hidden">
+      <article class="sheet">
+        <div class="sheet__corner" aria-hidden="true"></div>
+        <header class="sheet__header">
+          <h2 class="sheet__title">Dados Gerais</h2>
+          <span class="sheet__tag">Laudo de Inspecao</span>
+        </header>
+
+        <div class="grid">
+          <div class="field field--full"><span class="field__label">Proprietario</span><span class="field__value" data-out="ownerName">-</span></div>
+          <div class="field"><span class="field__label">Fone</span><span class="field__value" data-out="phone">-</span></div>
+          <div class="field"><span class="field__label">Email</span><span class="field__value" data-out="email">-</span></div>
+          <div class="field"><span class="field__label">Equip.</span><span class="field__value" data-out="equipment">-</span></div>
+          <div class="field"><span class="field__label">Serial</span><span class="field__value" data-out="serial">-</span></div>
+          <div class="field"><span class="field__label">Fabric.</span><span class="field__value" data-out="manufactureDate">-</span></div>
+          <div class="field"><span class="field__label">Cor Extradorso</span><span class="field__value" data-out="extradorsoColor">-</span></div>
+          <div class="field"><span class="field__label">Cor Intradorso</span><span class="field__value" data-out="intradorsoColor">-</span></div>
+          <div class="field"><span class="field__label">Data da Inspecao</span><span class="field__value" data-out="inspectionDate">-</span></div>
+          <div class="field"><span class="field__label">Proxima Inspecao</span><span class="field__value" data-out="nextInspectionDate">-</span></div>
+        </div>
+
+        <h3 class="section-title">Teste de Porosidade</h3>
+        <div class="grid">
+          <div class="field"><span class="field__label">Esquerda</span><span class="field__value" data-out="porosityLeft">-</span></div>
+          <div class="field"><span class="field__label">Centro Esq.</span><span class="field__value" data-out="porosityCenterLeft">-</span></div>
+          <div class="field"><span class="field__label">Centro</span><span class="field__value" data-out="porosityCenter">-</span></div>
+          <div class="field"><span class="field__label">Centro Dir.</span><span class="field__value" data-out="porosityCenterRight">-</span></div>
+          <div class="field"><span class="field__label">Direita</span><span class="field__value" data-out="porosityRight">-</span></div>
+          <div class="field field--full"><span class="field__label">Media</span><span class="field__value" data-out="porosityAverage">-</span></div>
+        </div>
+
+        <h3 class="section-title">Autenticidade</h3>
+        <div class="auth" id="auth">-</div>
+      </article>
+    </section>
+  </main>
+
+  <script src="./js/demo-store.js"></script>
+  <script src="./js/public-demo.js"></script>
+</body>
+</html>
