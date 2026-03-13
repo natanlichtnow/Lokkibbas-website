@@ -1,9 +1,6 @@
 # Moores Waterproofing Website
 
-Production-ready website with two operating modes:
-
-- **GitHub Pages demo mode** (no backend required)
-- **Secure server mode** (owner authentication + server-stored gallery posts)
+Production-ready website for real hosting with a secure Node.js backend and owner dashboard.
 
 ## Project Files
 
@@ -13,22 +10,6 @@ Production-ready website with two operating modes:
 - Gallery feed logic: `js/gallery.js`
 - Dashboard app logic: `js/dashboard.js`
 - Optional backend API: `server.js`
-
-## GitHub Pages Demo Mode
-
-Use this mode for client showcase.
-
-### Behavior
-
-- Public gallery works from browser demo storage when no API is present.
-- Private dashboard works in demo mode with local storage fallback.
-- Contact form opens a pre-filled email draft (`mailto:`).
-
-### Deploy
-
-1. Push repository to GitHub.
-2. Enable **GitHub Pages** in repository settings.
-3. Open your generated Pages URL.
 
 ## Secure Server Mode
 
@@ -48,8 +29,8 @@ Private dashboard URL:
 
 ### Owner credentials
 
-- Demo fallback credentials (`roofboi` / `4251`) are for static demo mode only.
 - Production server mode must use environment variables for owner auth.
+- Demo fallback credentials (`roofboi` / `4251`) only apply when the API is unavailable.
 
 ## Recommended Production Environment Variables
 

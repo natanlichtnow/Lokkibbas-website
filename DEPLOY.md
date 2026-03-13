@@ -1,82 +1,122 @@
-# GitHub Pages Deployment Checklist
+# Production Deployment Guide (Real Host)
 
-Before pushing to GitHub, verify everything is in order.
+This guide is for deploying this website on a real Node.js host (not GitHub Pages).
 
-## Pre-Deploy Checks ✓
+## 1. Choose a host
 
-- [x] All HTML pages have proper SEO meta tags (title, description, OG tags, theme-color)
-- [x] Contact form works with `mailto:` fallback
-- [x] Gallery responds to URL-only dashboard access (no public links)
-- [x] Theme toggle works and persists across pages
-- [x] Header menu responsive (mobile/desktop)
-- [x] All internal links are relative paths
-- [x] `robots.txt` and `sitemap.xml` present (update URLs for your repo)
-- [x] `.gitignore` excludes `node_modules/`, `uploads/`, `.env`, logs
-- [x] No hardcoded server dependencies in public pages
-- [x] Demo mode fallbacks work for gallery and dashboard
+Use a host that supports:
 
-## GitHub Pages Setup
+- Node.js 20+
+- HTTPS
+- Persistent filesystem (for `uploads/` and `data/posts.json`)
+- Environment variables
 
-1. **Create or use a GitHub repository** for this project.
-2. **Enable GitHub Pages:**
-   - Go to **Settings** → **Pages**
-   - Build and deployment source: **Deploy from a branch**
-   - Branch: **main** (or your default branch)
-   - Folder: **/ (root)**
-   - Click **Save**
-3. **Wait 1-5 minutes** for GitHub to publish.
-4. **Access your site** at: `https://YOUR-USERNAME.github.io/YOUR-REPO-NAME/`
+Recommended options for Canadian deployments:
 
-## Post-Deploy Tasks
+1. DigitalOcean Droplet (Toronto region) - strong control, predictable pricing.
+2. AWS Lightsail or EC2 (`ca-central-1`, Montreal) - enterprise-grade and Canadian region.
+3. OVHcloud VPS Public Cloud (Canada) - Canadian datacenter option with good value.
+4. Render Web Service + persistent disk - easiest managed flow (confirm region/latency needs).
 
-1. **Update SEO files:**
-   - Edit `robots.txt`: Replace `YOUR-GITHUB-USERNAME` and `YOUR-REPO-NAME` with actual values.
-   - Edit `sitemap.xml`: Replace `YOUR-GITHUB-USERNAME` and `YOUR-REPO-NAME` with actual values.
-   - Commit and push changes.
+## 2. Prepare local project
 
-2. **Test the live site:**
-   - Verify all pages load.
-   - Test theme toggle.
-   - Test contact form (opens email draft).
-   - Test gallery demo storage (add/remove posts).
-   - Test dashboard demo mode (login with `roofboi` / `4251`).
+From the project root:
 
-3. **Share the URL with your client:**
-   - Example: `https://your-username.github.io/moores-waterproofing/`
+```bash
+npm install
+node --check server.js
+```
 
-## Future Backend Upgrade
+Optional quick smoke test:
 
-When ready to add a real backend:
+```bash
+npm start
+```
 
-1. Deploy `server.js` to a hosting service (Render, Railway, Fly.io, VPS).
-2. Update environment variables on the host.
-3. Optionally keep GitHub Pages pointing to the same origin or migrate to a custom domain.
-4. Dashboard and gallery will automatically upgrade to secure server mode.
+Then open `http://localhost:3000`.
 
-## Secure Admin Dashboard Checklist (Server Mode)
+## 3. Generate secure admin credentials
 
-Before going live with `server.js`, configure these environment variables on the host:
-
-- `NODE_ENV=production`
-- `TOKEN_SECRET` (32+ random characters)
-- `OWNER_USERNAME`
-- `OWNER_PASSWORD_SALT` (16+ characters)
-- `OWNER_PASSWORD_HASH` (64-char hex PBKDF2-SHA256)
-
-Generate hash/salt once:
+Run once (replace with your real strong password):
 
 ```bash
 node -e "const crypto=require('crypto'); const password='REPLACE_WITH_STRONG_PASSWORD'; const salt=crypto.randomBytes(24).toString('hex'); const hash=crypto.pbkdf2Sync(password,salt,210000,32,'sha256').toString('hex'); console.log({salt, hash});"
 ```
 
-Important behavior:
+Save the generated `salt` and `hash` securely.
 
-- In production, the server refuses to start if default admin credentials or weak secrets are detected.
-- Failed login attempts are rate-limited and delayed.
-- Admin JWTs are short-lived (`8h`) and validated with issuer/audience checks.
+## 4. Set production environment variables on host
 
-## Notes
+Set these values in your hosting dashboard:
 
-- Static assets (images) should be in `assets/` folder.
-- Avoid uploading personal files or credentials to GitHub.
-- GitHub Pages enforces HTTPS automatically.
+- `NODE_ENV=production`
+- `PORT=3000` (or host-provided port)
+- `TOKEN_SECRET=<random string, 32+ chars>`
+- `OWNER_USERNAME=<admin username>`
+- `OWNER_PASSWORD_SALT=<generated salt>`
+- `OWNER_PASSWORD_HASH=<generated hash>`
+- `GOOGLE_CLIENT_ID=<optional, for Google-verified contact flow>`
+- `GMAIL_USER=<optional, for contact email sending>`
+- `GMAIL_APP_PASSWORD=<optional, for contact email sending>`
+- `CONTACT_TO_EMAIL=<destination inbox>`
+
+Important:
+
+- The server will not start in production if insecure default admin values are detected.
+
+## 5. Deploy code to host
+
+Use one of these methods:
+
+1. Git-based deploy (connect repo and deploy branch `main`).
+2. SSH deploy (clone repo on server and run with PM2/systemd).
+3. Container deploy (Dockerfile + host runtime).
+
+Start command:
+
+```bash
+npm start
+```
+
+## 6. Configure persistent storage
+
+Because gallery uploads are written to disk:
+
+- Ensure the app can write to `uploads/` and `data/`.
+- On ephemeral platforms, attach a persistent disk/volume.
+
+## 7. Point domain and enable HTTPS
+
+1. Add your domain in host settings.
+2. Point DNS (`A`/`CNAME`) to the host.
+3. Enable SSL/TLS certificate.
+4. Force HTTPS redirects.
+
+## 8. Update SEO files with your real domain
+
+Replace placeholders in:
+
+- `robots.txt`
+- `sitemap.xml`
+
+Example domain: `https://www.yourdomain.com`
+
+## 9. Post-deploy verification checklist
+
+1. Public pages load: `/`, `/services.html`, `/about.html`, `/gallery.html`, `/contact.html`.
+2. Dashboard login works: `/onlylokkibans.html`.
+3. Add and delete a gallery post from dashboard.
+4. Uploaded images persist after service restart.
+5. Contact flow works in the configured mode.
+6. Security headers present (Helmet enabled).
+
+## 10. Handover package for client
+
+Deliver these items:
+
+1. Live URL and admin dashboard URL.
+2. Host provider and project/service name.
+3. DNS registrar and DNS records summary.
+4. Environment variable inventory (without secret values in plain text).
+5. Admin credential rotation date and recovery process.
+6. Basic rollback note (previous deploy version).
