@@ -14,16 +14,57 @@ const rootDir = __dirname;
 const dataDir = path.join(rootDir, 'data');
 const uploadsDir = path.join(rootDir, 'uploads');
 const postsFilePath = path.join(dataDir, 'posts.json');
+const NODE_ENV = process.env.NODE_ENV || 'development';
 
 const PORT = Number(process.env.PORT || 3000);
-const OWNER_USERNAME = process.env.OWNER_USERNAME || 'roofboi';
-const OWNER_PASSWORD_SALT = process.env.OWNER_PASSWORD_SALT || 'moores-roofboi-salt';
-const OWNER_PASSWORD_HASH = process.env.OWNER_PASSWORD_HASH || '66f3f3d6a178a29384ec769d3ec87fe4e90620ff2c1e9b94425fddfd04c25cb5';
-const TOKEN_SECRET = process.env.TOKEN_SECRET || 'change-this-token-secret-immediately';
+const DEFAULT_OWNER_USERNAME = 'roofboi';
+const DEFAULT_OWNER_PASSWORD_SALT = 'moores-roofboi-salt';
+const DEFAULT_OWNER_PASSWORD_HASH = '66f3f3d6a178a29384ec769d3ec87fe4e90620ff2c1e9b94425fddfd04c25cb5';
+const DEFAULT_TOKEN_SECRET = 'change-this-token-secret-immediately';
+
+const OWNER_USERNAME = process.env.OWNER_USERNAME || DEFAULT_OWNER_USERNAME;
+const OWNER_PASSWORD_SALT = process.env.OWNER_PASSWORD_SALT || DEFAULT_OWNER_PASSWORD_SALT;
+const OWNER_PASSWORD_HASH = process.env.OWNER_PASSWORD_HASH || DEFAULT_OWNER_PASSWORD_HASH;
+const TOKEN_SECRET = process.env.TOKEN_SECRET || DEFAULT_TOKEN_SECRET;
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '846303717712-72aiml32ppb278g00m0ipn6rapt1olur.apps.googleusercontent.com';
 const GMAIL_USER = process.env.GMAIL_USER || '';
 const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD || '';
 const CONTACT_TO_EMAIL = process.env.CONTACT_TO_EMAIL || 'mooresexterios@gmail.com';
+const AUTH_FAILURE_DELAY_MS = 400;
+
+function isLikelyHex(value) {
+    return typeof value === 'string' && /^[a-f0-9]+$/i.test(value);
+}
+
+function assertSecurityConfig() {
+    if (NODE_ENV !== 'production') {
+        return;
+    }
+
+    const usingDefaultOwnerValues = OWNER_USERNAME === DEFAULT_OWNER_USERNAME
+        && OWNER_PASSWORD_SALT === DEFAULT_OWNER_PASSWORD_SALT
+        && OWNER_PASSWORD_HASH === DEFAULT_OWNER_PASSWORD_HASH;
+
+    if (usingDefaultOwnerValues) {
+        throw new Error('Refusing to start in production with default owner credentials. Set OWNER_USERNAME, OWNER_PASSWORD_SALT, and OWNER_PASSWORD_HASH.');
+    }
+
+    if (!TOKEN_SECRET || TOKEN_SECRET === DEFAULT_TOKEN_SECRET || TOKEN_SECRET.length < 32) {
+        throw new Error('Refusing to start in production with a weak TOKEN_SECRET. Use a random value of at least 32 characters.');
+    }
+
+    if (typeof OWNER_PASSWORD_SALT !== 'string' || OWNER_PASSWORD_SALT.length < 16) {
+        throw new Error('Refusing to start in production with weak OWNER_PASSWORD_SALT. Use at least 16 characters.');
+    }
+
+    if (typeof OWNER_PASSWORD_HASH !== 'string' || OWNER_PASSWORD_HASH.length !== 64 || !isLikelyHex(OWNER_PASSWORD_HASH)) {
+        throw new Error('Refusing to start in production with invalid OWNER_PASSWORD_HASH. Expected 64-char hex (PBKDF2-SHA256).');
+    }
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 const googleClient = GOOGLE_CLIENT_ID ? new OAuth2Client(GOOGLE_CLIENT_ID) : null;
 let mailTransporter;
@@ -121,7 +162,10 @@ function requireAuth(req, res, next) {
     }
 
     try {
-        const payload = jwt.verify(token, TOKEN_SECRET);
+        const payload = jwt.verify(token, TOKEN_SECRET, {
+            issuer: 'moores-waterproofing-site',
+            audience: 'dashboard-admin'
+        });
         if (payload.sub !== OWNER_USERNAME) {
             return res.status(403).json({ error: 'Invalid user.' });
         }
@@ -173,7 +217,7 @@ app.use(express.static(rootDir));
 
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 30,
+    max: 10,
     standardHeaders: true,
     legacyHeaders: false
 });
@@ -193,11 +237,12 @@ app.get('/api/public-config', (_req, res) => {
     });
 });
 
-app.post('/api/auth/login', authLimiter, (req, res) => {
+app.post('/api/auth/login', authLimiter, async (req, res) => {
     const username = typeof req.body.username === 'string' ? req.body.username.trim() : '';
     const password = typeof req.body.password === 'string' ? req.body.password : '';
 
     if (!username || !password) {
+        await sleep(AUTH_FAILURE_DELAY_MS);
         return res.status(400).json({ error: 'Username and password are required.' });
     }
 
@@ -205,10 +250,15 @@ app.post('/api/auth/login', authLimiter, (req, res) => {
     const isValid = username === OWNER_USERNAME && safeEqualHex(hashedInput, OWNER_PASSWORD_HASH);
 
     if (!isValid) {
+        await sleep(AUTH_FAILURE_DELAY_MS);
         return res.status(401).json({ error: 'Invalid credentials.' });
     }
 
-    const token = jwt.sign({ sub: OWNER_USERNAME, role: 'owner' }, TOKEN_SECRET, { expiresIn: '8h' });
+    const token = jwt.sign(
+        { sub: OWNER_USERNAME, role: 'owner' },
+        TOKEN_SECRET,
+        { expiresIn: '8h', issuer: 'moores-waterproofing-site', audience: 'dashboard-admin' }
+    );
     return res.json({ token });
 });
 
@@ -410,6 +460,8 @@ app.get('*', (req, res) => {
         }
     });
 });
+
+assertSecurityConfig();
 
 ensureStorage().then(() => {
     app.listen(PORT, () => {

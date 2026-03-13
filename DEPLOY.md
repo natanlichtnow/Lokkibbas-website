@@ -53,6 +53,28 @@ When ready to add a real backend:
 3. Optionally keep GitHub Pages pointing to the same origin or migrate to a custom domain.
 4. Dashboard and gallery will automatically upgrade to secure server mode.
 
+## Secure Admin Dashboard Checklist (Server Mode)
+
+Before going live with `server.js`, configure these environment variables on the host:
+
+- `NODE_ENV=production`
+- `TOKEN_SECRET` (32+ random characters)
+- `OWNER_USERNAME`
+- `OWNER_PASSWORD_SALT` (16+ characters)
+- `OWNER_PASSWORD_HASH` (64-char hex PBKDF2-SHA256)
+
+Generate hash/salt once:
+
+```bash
+node -e "const crypto=require('crypto'); const password='REPLACE_WITH_STRONG_PASSWORD'; const salt=crypto.randomBytes(24).toString('hex'); const hash=crypto.pbkdf2Sync(password,salt,210000,32,'sha256').toString('hex'); console.log({salt, hash});"
+```
+
+Important behavior:
+
+- In production, the server refuses to start if default admin credentials or weak secrets are detected.
+- Failed login attempts are rate-limited and delayed.
+- Admin JWTs are short-lived (`8h`) and validated with issuer/audience checks.
+
 ## Notes
 
 - Static assets (images) should be in `assets/` folder.

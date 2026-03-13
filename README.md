@@ -48,8 +48,8 @@ Private dashboard URL:
 
 ### Owner credentials
 
-- Username: `roofboi`
-- Password: `4251`
+- Demo fallback credentials (`roofboi` / `4251`) are for static demo mode only.
+- Production server mode must use environment variables for owner auth.
 
 ## Recommended Production Environment Variables
 
@@ -58,6 +58,29 @@ Private dashboard URL:
 - `OWNER_PASSWORD_SALT`
 - `OWNER_PASSWORD_HASH`
 - `PORT`
+
+## Admin Authentication Safety (Production)
+
+- Server now fails fast in production if defaults are still in use.
+- `TOKEN_SECRET` must be random and at least 32 characters.
+- `OWNER_PASSWORD_SALT` must be at least 16 characters.
+- `OWNER_PASSWORD_HASH` must be a 64-character hex PBKDF2-SHA256 hash.
+- Login endpoint is rate-limited and adds a delay on failed logins.
+
+### Generate a secure password hash
+
+Run this command and keep the printed values private:
+
+```bash
+node -e "const crypto=require('crypto'); const password='REPLACE_WITH_STRONG_PASSWORD'; const salt=crypto.randomBytes(24).toString('hex'); const hash=crypto.pbkdf2Sync(password,salt,210000,32,'sha256').toString('hex'); console.log({salt, hash});"
+```
+
+Set on your host:
+
+- `OWNER_USERNAME=your_admin_username`
+- `OWNER_PASSWORD_SALT=<generated salt>`
+- `OWNER_PASSWORD_HASH=<generated hash>`
+- `TOKEN_SECRET=<long random secret>`
 
 ## Repo Hygiene
 
