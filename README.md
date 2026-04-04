@@ -1,69 +1,50 @@
 # Moores Waterproofing Website
 
-Production-ready website for real hosting with a secure Node.js backend and owner dashboard.
+A fully responsive and interactive website developed for a real client in the exterior renovation industry (Canada).
 
-## Project Files
+This project includes a custom dashboard that allows the client to manage their portfolio by uploading images and embedding YouTube videos, keeping their gallery updated dynamically.
 
-- Public pages: `index.html`, `services.html`, `about.html`, `gallery.html`, `contact.html`
-- Private dashboard page: `onlylokkibans.html`
-- Shared frontend logic: `js/main.js`
-- Gallery feed logic: `js/gallery.js`
-- Dashboard app logic: `js/dashboard.js`
-- Optional backend API: `server.js`
+## 🚀 Live Demo
+[Add your live URL here]
 
-## Secure Server Mode
+## 📌 Features
 
-Use this mode for real protected publishing/deleting.
+- Responsive and modern UI design
+- Custom-built dashboard for content management
+- Multi-image upload functionality
+- YouTube video integration for portfolio display
+- Dynamic gallery updates
+- Client-oriented UX for easy content control
 
-### Run locally
+## 🛠 Tech Stack
 
-1. Install dependencies:
-   - `npm install`
-2. Start server:
-   - `npm start`
-3. Open:
-   - `http://localhost:3000`
+- HTML
+- CSS
+- JavaScript
+- Node.js (if used)
+- Express (if used)
+- Git & GitHub
 
-Private dashboard URL:
-- `http://localhost:3000/onlylokkibans.html`
+## 🌐 Deployment
 
-### Owner credentials
+Deployed using DigitalOcean, including server configuration and environment setup.
 
-- Production server mode must use environment variables for owner auth.
-- Demo fallback credentials (`roofboi` / `4251`) only apply when the API is unavailable.
+## 🎯 Project Context
 
-## Recommended Production Environment Variables
+This was a freelance project developed for a real business, focused on delivering a professional online presence and an easy-to-use system for managing portfolio content.
 
-- `TOKEN_SECRET` (strong random secret)
-- `OWNER_USERNAME`
-- `OWNER_PASSWORD_SALT`
-- `OWNER_PASSWORD_HASH`
-- `PORT`
+## 📸 Preview
 
-## Admin Authentication Safety (Production)
+<img width="1919" height="935" alt="image" src="https://github.com/user-attachments/assets/cc588477-d158-433b-bc5b-8f1d6b1dfd36" />
 
-- Server now fails fast in production if defaults are still in use.
-- `TOKEN_SECRET` must be random and at least 32 characters.
-- `OWNER_PASSWORD_SALT` must be at least 16 characters.
-- `OWNER_PASSWORD_HASH` must be a 64-character hex PBKDF2-SHA256 hash.
-- Login endpoint is rate-limited and adds a delay on failed logins.
+<img width="1919" height="934" alt="image" src="https://github.com/user-attachments/assets/e2c937d5-c845-42a3-a80d-c8a08f6e95a2" />
 
-### Generate a secure password hash
+<img width="1919" height="940" alt="image" src="https://github.com/user-attachments/assets/95dd3584-1a43-41ed-ae10-ee5f11f7b608" />
 
-Run this command and keep the printed values private:
 
-```bash
-node -e "const crypto=require('crypto'); const password='REPLACE_WITH_STRONG_PASSWORD'; const salt=crypto.randomBytes(24).toString('hex'); const hash=crypto.pbkdf2Sync(password,salt,210000,32,'sha256').toString('hex'); console.log({salt, hash});"
-```
+## 💡 Key Learnings
 
-Set on your host:
-
-- `OWNER_USERNAME=your_admin_username`
-- `OWNER_PASSWORD_SALT=<generated salt>`
-- `OWNER_PASSWORD_HASH=<generated hash>`
-- `TOKEN_SECRET=<long random secret>`
-
-## Repo Hygiene
-
-- `node_modules/`, `uploads/`, logs, and `.env` are ignored by `.gitignore`.
-- Keep secure credentials only in environment variables for production.
+- Building real-world client solutions
+- Designing user-friendly interfaces
+- Managing media content dynamically
+- Deploying and maintaining a live production environment
